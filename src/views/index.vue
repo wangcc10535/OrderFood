@@ -45,8 +45,8 @@ export default {
           },
           name: '点餐系统',
           icon: require('@/assets/images/diancan-2.png'),
-          path: '/datareportsIMgr',
-          hasPermi: ''
+          path: '/merchantIMgr/index',
+          hasPermi: ['region:index:merchant']
         }
       ]
     };

@@ -74,24 +74,17 @@ export const constantRoutes = [
       }
     ]
   },
-  // {
-  //   path: '',
-  //   component: Layout,
-  //   redirect: 'index',
-  //   children: [
-  //     {
-  //       path: '/index',
-  //       component: () => import('@/views/index'),
-  //       name: 'Index',
-  //       meta: { title: '首页', icon: 'dashboard', affix: true }
-  //     }
-  //   ]
-  // },
   {
     path: '/index',
     hidden: true,
     // component: () => import('@/views/index'),
     component: (resolve) => require(['@/views/index'], resolve),
+  },
+  {
+    path: '/merchantIMgr/index',
+    hidden: true,
+    // component: () => import('@/views/index'),
+    component: (resolve) => require(['@/views/MerchantOrderMgr/merchantIMgr/index'], resolve),
   },
   {
     path: '/user',
@@ -182,7 +175,6 @@ export const dynamicRoutes = [
     ]
   }
 ]
-
 // 防止连续点击多次路由报错
 let routerPush = Router.prototype.push;
 Router.prototype.push = function push(location) {

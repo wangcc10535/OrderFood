@@ -1,0 +1,85 @@
+.base-background {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.topSearch {
+  padding: 15px 10px;
+}
+
+.topSearch-width {
+  width: 204px;
+  height: 32px;
+}
+
+.topSearch-base {
+  font-size: 12px;
+  display: inline-block;
+}
+
+.pagination {
+  text-align: right;
+}
+
+.content {
+  margin-top: 15px;
+  padding: 30px;
+}
+
+.content-table {
+  margin-top: 26px;
+}
+
+::v-deep .switchStyle .el-switch__label {
+  position: absolute;
+  display: none;
+  color: #fff;
+}
+
+::v-deep .switchStyle .el-switch__label--left {
+  z-index: 9;
+  left: 20px;
+  margin-right: 3px;
+}
+
+::v-deep .switchStyle .el-switch__label--right {
+  z-index: 9;
+  left: -5px;
+}
+::v-deep .el-input.is-disabled .el-input__inner{
+  color: #606266;
+}
+::v-deep .switchStyle .el-switch__label.is-active {
+  display: block;
+}
+
+::v-deep .switchStyle.el-switch .el-switch__core,
+.el-switch .el-switch__label {
+  width: 50px !important;
+}
+
+::v-deep .el-switch__label * {
+  font-size: 12px;
+}
+
+.el-input--medium .el-input__inner {
+  height: 32px;
+  line-height: 32px;
+}
+
+.el-button--mini {
+  padding: 8px 15px;
+}
+
+.el-table .el-table__header-wrapper th {
+  color: #000;
+  font-family: emoji;
+  font-size: 14px;
+}
+
+.magin-base {
+  margin: 10px 0 10px 10px !important;
+}
+
+.link-m {
+    margin-left: 10px;
+  }
