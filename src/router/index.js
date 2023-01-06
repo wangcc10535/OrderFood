@@ -62,17 +62,36 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '',
+    path: '/BackOfficeMgr',
     component: Layout,
-    redirect: 'index',
+    redirect: 'BackOfficeIndex',
     children: [
       {
-        path: 'index',
-        component: () => import('@/views/index'),
-        name: 'Index',
-        meta: { title: '首页', icon: 'dashboard', affix: true }
+        path: '/BackOfficeIndex',
+        component: () => import('@/views/BackOfficeMgr/BackOfficeIndex'),
+        name: 'BackOfficeIndex',
+        meta: { title: '概览', icon: 'dashboard', affix: true }
       }
     ]
+  },
+  // {
+  //   path: '',
+  //   component: Layout,
+  //   redirect: 'index',
+  //   children: [
+  //     {
+  //       path: '/index',
+  //       component: () => import('@/views/index'),
+  //       name: 'Index',
+  //       meta: { title: '首页', icon: 'dashboard', affix: true }
+  //     }
+  //   ]
+  // },
+  {
+    path: '/index',
+    hidden: true,
+    // component: () => import('@/views/index'),
+    component: (resolve) => require(['@/views/index'], resolve),
   },
   {
     path: '/user',
