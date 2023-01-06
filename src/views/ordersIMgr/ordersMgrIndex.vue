@@ -2,29 +2,139 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:31:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-05 22:32:03
+ * @LastEditTime: 2023-01-07 00:21:05
  * @FilePath: \orderfood\src\views\ordersIMgr\ordersMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
-    <div>
-        订单管理
+    <div class="app-container">
+        <div class="topSearch base-background top-box" ref="element">
+            <div class="topSearch-base magin-base">
+                <span>订单编号：</span>
+                <el-input class="topSearch-width" v-model="searchFrom.townName" placeholder="请输入"></el-input>
+            </div>
+            <div class="topSearch-base magin-base">
+                <span>订单状态：</span>
+                <el-select class="topSearch-width" v-model="searchFrom.eventType" placeholder="请选择">
+                    <el-option v-for="item in dict.type.order_status" :key="item.value" :label="item.label"
+                        :value="item.value"></el-option>
+                </el-select>
+            </div>
+            <div class="topSearch-base magin-base">
+                <span>查询日期：</span>
+                <el-date-picker v-model="searchFrom.value2" type="daterange" value-format="yyyy-MM-dd" align="right"
+                    unlink-panels range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
+                    :picker-options="pickerOptions">
+                </el-date-picker>
+
+            </div>
+            <el-button class="magin-base" type="primary" size="mini" @click="searchQuery">搜索</el-button>
+            <el-button class="magin-base" type="warning" size="mini" @click="resetQuery">重置</el-button>
+        </div>
+        <div class="content base-background">
+            <el-button type="primary" size="mini" icon="el-icon-plus" @click="addOrders">插入订单</el-button>
+            <div class="content-table">
+                <el-table :data="tableData" border :height="baseHeight" style="width: 100%">
+                    <el-table-column prop="dswr" label="订单编号" fixed="left" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="所属店铺" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="桌号" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="点餐菜品" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="追加菜品" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="开台时间" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="结算时间" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="订单金额" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="实收金额" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="优惠金额" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="订单状态" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="收款方式" align="center"></el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template slot-scope="scope">
+                            <el-button @click="detail(scope.row)" size="small" class="link-m"
+                                type="primary">查看</el-button>
+                            <el-button @click="settlement(scope.row)" size="small" class="link-m"
+                                type="warning">结算</el-button>
+                            <el-popconfirm confirm-button-text="是的" cancel-button-text="不用了"
+                                @confirm="compDelete(scope.row)" title="确定删除吗？">
+                                <el-button type="danger" size="small" class="link-m" slot="reference">删除</el-button>
+                            </el-popconfirm>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <!--   分页   -->
+                <div class="pagination-box" v-if="total > 0">
+                    <pagination :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+                        @pagination="getList" />
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 <script>
 export default {
-    name:'ordersMgrIndex',
+    name: 'ordersMgrIndex',
+    dicts: ['order_status'],
     data() {
         return {
+            pickerOptions: {
+                shortcuts: [{
+                    text: '最近一周',
+                    onClick(picker) {
+                        const end = new Date();
+                        const start = new Date();
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                        picker.$emit('pick', [start, end]);
+                    }
+                }, {
+                    text: '最近一个月',
+                    onClick(picker) {
+                        const end = new Date();
+                        const start = new Date();
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                        picker.$emit('pick', [start, end]);
+                    }
+                }, {
+                    text: '最近三个月',
+                    onClick(picker) {
+                        const end = new Date();
+                        const start = new Date();
+                        start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                        picker.$emit('pick', [start, end]);
+                    }
+                }]
+            },
+            searchFrom: {},
+            tableData: [],
+            total: 0,
+            queryParams: {
+                pageNum: 1,
+                pageSize: 10
+            },
+            baseHeight: '520'
         }
     },
     created() {
     },
     mounted() {
+        this.$nextTick(() => {
+            this.baseHeight = document.body.clientHeight - this.$refs.element.offsetHeight - 297
+        })
     },
     methods: {
+        searchQuery() {
+            console.log(this.searchFrom);
+        },
+        resetQuery() {
+            this.searchFrom = {};
+            this.getList()
+        },
+        addOrders() { },
+        getList() { },
+        detail(row) {},
+        settlement(row) {},
+        compDelete(row) {}
     }
 };
 </script>
 <style scoped lang='scss'>
+
 </style>

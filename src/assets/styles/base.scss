@@ -1,9 +1,10 @@
 .base-background {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: #fff;
 }
 
 .topSearch {
   padding: 15px 10px;
+  border-radius: 5px;
 }
 
 .topSearch-width {
@@ -12,7 +13,7 @@
 }
 
 .topSearch-base {
-  font-size: 12px;
+  font-size: 14px;
   display: inline-block;
 }
 
