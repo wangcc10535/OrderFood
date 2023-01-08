@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 20:57:10
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-06 23:56:57
+ * @LastEditTime: 2023-01-08 16:19:11
  * @FilePath: \orderfood\src\views\businessIMgr\businessMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -46,6 +46,7 @@
     </div>
 </template>
 <script>
+import { listShop, deleteShop } from '@/api/businessMgr/businessIMgr'
 export default {
     name: 'businessMgrIndex',
     data() {
@@ -61,6 +62,7 @@ export default {
         }
     },
     created() {
+        this.getList();
     },
     mounted() {
         this.$nextTick(() => {
@@ -71,7 +73,11 @@ export default {
         searchQuery() { },
         resetQuery() { },
         addBusiness() { },
-        getList() { }
+        async getList() {
+            let { code, data } = await listShop({ ...this.searchFrom, ...this.queryParams })
+            console.log(code);
+            console.log(data);
+        }
     }
 };
 </script>

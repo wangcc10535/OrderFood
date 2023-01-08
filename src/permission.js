@@ -1,3 +1,11 @@
+/*
+ * @Author: wangcc 1053578651@qq.com
+ * @Date: 2022-12-27 13:10:54
+ * @LastEditors: wangcc 1053578651@qq.com
+ * @LastEditTime: 2023-01-08 17:27:51
+ * @FilePath: \orderfood\src\permission.js
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import router from './router'
 import store from './store'
 import { Message } from 'element-ui'
@@ -9,28 +17,21 @@ import { isRelogin } from '@/utils/request'
 NProgress.configure({ showSpinner: false })
 
 const whiteList = ['/login', '/auth-redirect', '/bind', '/register']
-const pathObj = {
-  "/":'index',
-  "/index":'index'
-}
 router.beforeEach((to, from, next) => {
   NProgress.start()
   if (getToken()) {
     to.meta.title && store.dispatch('settings/setTitle', to.meta.title)
     /* has token*/
-    console.log(to.path);
     if (to.path === '/login') {
       next({ path: '/' })
       NProgress.done()
     } else {
       if (store.getters.roles.length === 0) {
-        console.log(pathObj[to.path]);
         isRelogin.show = true
         // 判断当前用户是否已拉取完user_info信息
         store.dispatch('GetInfo').then(() => {
           isRelogin.show = false
-          console.log(store.getters.modeType);
-          store.dispatch('GenerateRoutes', pathObj[to.path] || store.getters.modeType).then(accessRoutes => {
+          store.dispatch('GenerateRoutes').then(accessRoutes => {
             // 根据roles权限生成可访问的路由表
             router.addRoutes(accessRoutes) // 动态添加可访问路由表
             next({ ...to, replace: true }) // hack方法 确保addRoutes已完成

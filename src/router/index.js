@@ -75,15 +75,13 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/index',
+    path: '/',
     hidden: true,
-    // component: () => import('@/views/index'),
     component: (resolve) => require(['@/views/index'], resolve),
   },
   {
     path: '/merchantIMgr/index',
     hidden: true,
-    // component: () => import('@/views/index'),
     component: (resolve) => require(['@/views/MerchantOrderMgr/merchantIMgr/index'], resolve),
   },
   {
