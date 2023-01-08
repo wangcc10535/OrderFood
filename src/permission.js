@@ -9,22 +9,28 @@ import { isRelogin } from '@/utils/request'
 NProgress.configure({ showSpinner: false })
 
 const whiteList = ['/login', '/auth-redirect', '/bind', '/register']
-
+const pathObj = {
+  "/":'index',
+  "/index":'index'
+}
 router.beforeEach((to, from, next) => {
   NProgress.start()
   if (getToken()) {
     to.meta.title && store.dispatch('settings/setTitle', to.meta.title)
     /* has token*/
+    console.log(to.path);
     if (to.path === '/login') {
       next({ path: '/' })
       NProgress.done()
     } else {
       if (store.getters.roles.length === 0) {
+        console.log(pathObj[to.path]);
         isRelogin.show = true
         // 判断当前用户是否已拉取完user_info信息
         store.dispatch('GetInfo').then(() => {
           isRelogin.show = false
-          store.dispatch('GenerateRoutes').then(accessRoutes => {
+          console.log(store.getters.modeType);
+          store.dispatch('GenerateRoutes', pathObj[to.path] || store.getters.modeType).then(accessRoutes => {
             // 根据roles权限生成可访问的路由表
             router.addRoutes(accessRoutes) // 动态添加可访问路由表
             next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
