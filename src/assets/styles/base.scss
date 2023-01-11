@@ -46,7 +46,7 @@
   z-index: 9;
   left: -5px;
 }
-::v-deep .el-input.is-disabled .el-input__inner{
+::v-deep .el-input.is-disabled .el-input__inner {
   color: #606266;
 }
 ::v-deep .switchStyle .el-switch__label.is-active {
@@ -82,5 +82,7 @@
 }
 
 .link-m {
-    margin-left: 10px;
-  }
+  margin-left: 10px;
+}
+
+

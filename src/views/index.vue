@@ -76,7 +76,7 @@ export default {
         this.$store.dispatch('LogOut').then(() => {
           location.href = '/index';
         })
-      }).catch(() => {});
+      }).catch(() => { });
     }
   }
 };
@@ -147,12 +147,14 @@ export default {
     right: 13%;
   }
 }
-.logOut{
+
+.logOut {
   position: absolute;
   top: 20px;
   right: 20px;
   z-index: 4;
 }
+
 .menu-list {
   display: flex;
   justify-content: center;
@@ -191,6 +193,43 @@ export default {
 
   .menu-item:nth-child(2) {
     margin-right: 0;
+  }
+}
+
+@media screen and (max-width: 800px) {
+
+  .menu-list {
+    .menu-item {
+      cursor: pointer;
+      width: 42%;
+      height: 168px;
+      margin-right: 40px;
+
+      img {
+        width: 53px;
+        height: 53px;
+      }
+
+      h2 {
+        color: #fff;
+        font-size: 16px;
+      }
+
+      .menu-item-log {
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+        background-size: 100% 100%;
+        justify-content: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    .menu-item:nth-child(2) {
+      margin-right: 0;
+    }
   }
 }
 </style>
