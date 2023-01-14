@@ -195,6 +195,7 @@ export default {
     },
     // 对象转成指定字符串分隔
     listToString(list, separator) {
+      console.log(this.baseUrl);
       let strs = "";
       separator = separator || ",";
       for (let i in list) {

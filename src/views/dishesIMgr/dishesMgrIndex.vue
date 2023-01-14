@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:20:04
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-07 00:02:15
+ * @LastEditTime: 2023-01-14 23:53:36
  * @FilePath: \orderfood\src\views\dishesIMgr\dishesMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,7 +11,7 @@
         <div class="topSearch base-background top-box" ref="element">
             <div class="topSearch-base magin-base">
                 <span>菜品名称：</span>
-                <el-input class="topSearch-width" v-model="searchFrom.townName" placeholder="请输入"></el-input>
+                <el-input class="topSearch-width" v-model="searchFrom.name" placeholder="请输入"></el-input>
             </div>
             <div class="topSearch-base magin-base">
                 <span>菜品分类：</span>
@@ -32,16 +32,29 @@
                 </el-tabs>
                 <el-table :data="tableData" border :height="baseHeight" style="width: 100%">
                     <el-table-column type="index" label="序号" fixed="left" align="center" width="50"></el-table-column>
-                    <el-table-column prop="cropName" label="菜品名称" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="封面图" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="菜品分类" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="状态" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="总销量" align="center"></el-table-column>
+                    <el-table-column prop="name" label="菜品名称" align="center"></el-table-column>
+                    <el-table-column prop="cropName" label="封面图" align="center">
+                        <template slot-scope="{row}">
+                            <div class="row-img-box" v-viewer>
+                                <img :src="row.Img" alt="">
+                            </div>
+
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="foodTypeName" label="菜品分类" align="center"></el-table-column>
+                    <el-table-column prop="enable" label="状态" align="center">
+                        <template slot-scope="{row}">
+                            <span>{{ selectDictLabel(dict.type.enable_status, row.enable) }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="price" label="价格" align="center"></el-table-column>
                     <el-table-column prop="cropName" label="创建时间" align="center"></el-table-column>
                     <el-table-column label="操作" align="center">
                         <template slot-scope="scope">
-                            <el-button @click="edit(scope.row)" size="small" class="link-m"
+                            <el-button @click="Shelves(scope.row)" size="small" class="link-m"
                                 type="primary">上架</el-button>
+                            <el-button @click="Takedown(scope.row)" size="small" class="link-m"
+                                type="primary">下架</el-button>
                             <el-button @click="edit(scope.row)" size="small" class="link-m"
                                 type="warning">编辑</el-button>
                             <el-popconfirm confirm-button-text="是的" cancel-button-text="不用了"
@@ -58,12 +71,18 @@
                 </div>
             </div>
         </div>
+        <add-log ref="dishesIMgr"></add-log>
     </div>
 </template>
 <script>
+import { listFood, delFood } from '@/api/dishesMgr/dishesIMgr'
+import addLog from './dialog/addLog.vue'
 export default {
     name: 'dishesMgrIndex',
-    dicts: [],
+    dicts: ['enable_status'],
+    components: {
+        addLog
+    },
     data() {
         return {
             searchFrom: {},
@@ -97,6 +116,7 @@ export default {
         }
     },
     created() {
+        this.getList();
     },
     mounted() {
         this.$nextTick(() => {
@@ -106,8 +126,31 @@ export default {
     methods: {
         searchQuery() { },
         resetQuery() { },
-        addDishes() { },
-        getList() { },
+        // 新增
+        addDishes() {
+            this.$refs.dishesIMgr.openVisible()
+        },
+        // 上架  下架
+        Shelves(row) { },
+        Takedown(row) { },
+        // 修改
+        edit(row) { },
+        // 删除
+        compDelete(row) {
+            delFood(id).then(res => {
+                if (res.code == 200) {
+                    this.$message.success('删除成功！');
+                    this.getList();
+                }
+            })
+        },
+        // 列表查询
+        async getList() {
+            let { code, rows } = await listFood({ ...this.searchFrom, ...this.queryParams });
+            if (code == 200) {
+                this.tableData = rows;
+            }
+        },
         handleClick(tab, event) {
             console.log(tab, event)
         }
@@ -115,4 +158,12 @@ export default {
 };
 </script>
 <style scoped lang='scss'>
+.row-img-box{
+    width: 80px;
+    height: 60px;
+    img{
+        width: 100%;
+        height: 100%;
+    }
+}
 </style>

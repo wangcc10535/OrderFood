@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:36:26
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-08 13:30:17
+ * @LastEditTime: 2023-01-15 01:53:08
  * @FilePath: \orderfood\src\views\memberIMgr\memberMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,11 +10,11 @@
     <div class="app-container">
         <div class="topSearch base-background top-box" ref="element">
             <div class="topSearch-base magin-base">
-                <span>会员名称：</span>
+                <span>用户名称：</span>
                 <el-input class="topSearch-width" v-model="searchFrom.townName" placeholder="请输入"></el-input>
             </div>
             <div class="topSearch-base magin-base">
-                <span>会员手机号：</span>
+                <span>用户手机号：</span>
                 <el-input class="topSearch-width" v-model="searchFrom.townName" placeholder="请输入"></el-input>
             </div>
             <div class="topSearch-base magin-base">
