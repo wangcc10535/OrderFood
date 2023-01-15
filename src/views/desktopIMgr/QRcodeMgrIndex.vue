@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-06 13:37:00
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-08 15:47:41
+ * @LastEditTime: 2023-01-15 21:15:09
  * @FilePath: \orderfood\src\views\desktopIMgr\QRcodeMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,77 +12,66 @@
             <div class="content-table center_QR_desktop">
                 <div class="top_box">
                     <h4>二维码管理</h4>
-                    <el-button type="primary" size="mini" icon="el-icon-download"
-                        @click="ExportQRcode">一键导出二维码</el-button>
+                    <div>
+
+                        <el-button type="primary" size="mini" icon="el-icon-plus" @click="addArea">新增区域</el-button>
+                        <el-button type="primary" size="mini" icon="el-icon-download"
+                            @click="ExportQRcode">一键导出二维码</el-button>
+                    </div>
                 </div>
                 <div class="center-list">
-                    <div class="list_item" v-for="(item,index) in desktopList" :key="index">
+                    <div class="list_item" v-for="(item, index) in desktopList" :key="index">
                         <div class="region_title">
-                            {{item.title}}
+                            {{ item.areaName }}
+                            <el-link type="primary" @click="editRegionDesk(item)">修改</el-link>
+                            <!-- <el-link type="danger" @click="regionDesk(item)">删除</el-link> -->
                         </div>
                         <div class="desktop_list">
-                            <div class="desktop_item" v-for="(ites,index) in item.child" :key="index">
+                            <div class="desktop_item" v-for="(ites, index) in item.child" :key="index">
                                 <div class="item-name">
-                                    {{ites.name}}
+                                    {{ ites.name }}
                                 </div>
                                 <div class="QR-img">
+                                    <el-link type="primary" @click="editDesk(ites)">修改</el-link>
+                                    <el-link type="danger" @click="delDesk(ites)">删除</el-link>
                                     <img src="@/assets/images/qr_code.png" alt="">
                                 </div>
+                            </div>
+                            <div class="desktop_item item-plus" @click="addDesk(item)">
+                                <i class="el-icon-plus"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <area-view ref="areaView" :titleTop="titleTop"></area-view>
+        <desk-view ref="deskView" :titleLog="titleLog"></desk-view>
     </div>
 </template>
 <script>
+import { listArea, delArea, listTable, delTable } from '@/api/desktopMgr/desktopMgr'
+import areaView from './dialog/RegionDesk.vue'
+import deskView from './dialog/tableDesk.vue'
 export default {
     name: 'QRcodeMgrIndex',
+    components: {
+        areaView,
+        deskView
+    },
     data() {
         return {
             branchHeight: '',
-            desktopList:[
-                {
-                    id: 1,
-                    title: '一楼大厅',
-                    child:[
-                        {
-                            id: 1,
-                            name: '1号桌'
-                        },
-                        {
-                            id: 2,
-                            name: '2号桌'
-                        },
-                        {
-                            id: 3,
-                            name: '3号桌'
-                        }
-                    ]
-                },
-                {
-                    id: 2,
-                    title: '二楼包房',
-                    child:[
-                        {
-                            id: 1,
-                            name: '牡丹亭'
-                        },
-                        {
-                            id: 2,
-                            name: '888'
-                        },
-                        {
-                            id: 3,
-                            name: '兰花厅'
-                        }
-                    ]
-                }
-            ]
+            areaList: [],
+            titleTop: '',
+            titleLog: '',
+            desktopList: [],
+            dataList: []
         }
     },
     created() {
+        this.getListArea();
+        // this.getListTable();
 
     },
     mounted() {
@@ -92,7 +81,93 @@ export default {
 
     },
     methods: {
-        ExportQRcode() { }
+        async ExportQRcode() {
+
+        },
+        // 查询桌面
+        async getListTable() {
+            let { code, rows } = await listTable();
+            if (code == 200) {
+                this.dataList = rows
+            }
+        },
+        // 新增桌面
+        addDesk(item) {
+            this.titleLog = '新增桌面'
+            this.$refs.deskView.openVisible(item)
+        },
+        // 修改桌面
+        editDesk(its) {
+            this.titleLog = '修改桌面'
+            this.$refs.deskView.openVisible(its)
+        },
+        // 删除桌面
+        delDesk(item) {
+            this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                delTable(item.id).then(res => {
+                    if (res.code == 200) {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+
+                        this.getListTable()
+                    }
+                })
+
+            })
+        },
+
+        // 查询区域
+        async getListArea() {
+            let { code, rows } = await listArea();
+            if (code == 200) {
+                this.areaList = rows;
+                this.desktopList = [];
+                this.areaList.forEach(element => {
+                    console.log(element);
+                    let areaData = {}
+                    areaData.areaName = element.name
+                    areaData.areaId = element.id
+                    this.desktopList.push(areaData)
+                })
+            }
+        },
+        // 新增区域
+        addArea() {
+            this.titleTop = '新增区域'
+            this.$refs.areaView.openVisible()
+        },
+        // 修改区域
+        editRegionDesk(item) {
+            this.titleTop = '修改区域'
+            this.$refs.areaView.openVisible(item)
+        },
+        // 删除区域
+        regionDesk(item) {
+            this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                delArea(item.id).then(res => {
+                    if (res.code == 200) {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+
+                        this.getListArea()
+                    }
+                })
+
+            })
+        },
+
     }
 };
 </script>
@@ -131,6 +206,16 @@ export default {
             .desktop_list {
                 overflow: hidden;
                 padding: 0 10px;
+
+                .item-plus {
+                    text-align: center;
+                    line-height: 145px;
+
+                    i {
+                        font-size: 36px;
+                    }
+                }
+
                 .desktop_item {
                     width: 145px;
                     height: 140px;
@@ -143,6 +228,7 @@ export default {
                     float: left;
                     margin-right: 20px;
                     margin-bottom: 20px;
+
                     .item-name {
                         line-height: 73px;
                         border-bottom: 1px solid rgba(187, 187, 187, 1);
@@ -154,11 +240,11 @@ export default {
                         height: 64px;
                         align-items: center;
                         display: flex;
-                        justify-content: center;
+                        justify-content: space-evenly;
 
                         img {
-                            width: 33px;
-                            height: 33px;
+                            width: 17px;
+                            height: 17px;
                         }
                     }
                 }

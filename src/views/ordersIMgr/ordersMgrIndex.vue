@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:31:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-07 00:21:05
+ * @LastEditTime: 2023-01-15 17:45:20
  * @FilePath: \orderfood\src\views\ordersIMgr\ordersMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -35,18 +35,18 @@
             <el-button type="primary" size="mini" icon="el-icon-plus" @click="addOrders">插入订单</el-button>
             <div class="content-table">
                 <el-table :data="tableData" border :height="baseHeight" style="width: 100%">
-                    <el-table-column prop="dswr" label="订单编号" fixed="left" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="所属店铺" align="center"></el-table-column>
+                    <el-table-column prop="number" label="订单编号" fixed="left" align="center"></el-table-column>
+                    <el-table-column prop="shopId" label="所属店铺" align="center"></el-table-column>
                     <el-table-column prop="cropName" label="桌号" align="center"></el-table-column>
                     <el-table-column prop="cropName" label="点餐菜品" align="center"></el-table-column>
                     <el-table-column prop="cropName" label="追加菜品" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="开台时间" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="结算时间" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="订单金额" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="实收金额" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="优惠金额" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="订单状态" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="收款方式" align="center"></el-table-column>
+                    <el-table-column prop="createTime" label="开台时间" align="center"></el-table-column>
+                    <el-table-column prop="billTime" label="结算时间" align="center"></el-table-column>
+                    <el-table-column prop="price" label="订单金额" align="center"></el-table-column>
+                    <el-table-column prop="amount" label="实收金额" align="center"></el-table-column>
+                    <el-table-column prop="discountAmount" label="优惠金额" align="center"></el-table-column>
+                    <el-table-column prop="status" label="订单状态" align="center"></el-table-column>
+                    <el-table-column prop="pay" label="收款方式" align="center"></el-table-column>
                     <el-table-column label="操作" align="center">
                         <template slot-scope="scope">
                             <el-button @click="detail(scope.row)" size="small" class="link-m"
@@ -67,14 +67,19 @@
                 </div>
             </div>
         </div>
+       <add-log ref="addOrEdit" :titleTop="titleTop"></add-log>
     </div>
 </template>
 <script>
+import { listOrder, delOrder } from '@/api/ordersIMgr/ordersMgr'
+import addLog from './dialog/addOredit.vue'
 export default {
     name: 'ordersMgrIndex',
     dicts: ['order_status'],
+    components: {addLog},
     data() {
         return {
+            titleTop:'',
             pickerOptions: {
                 shortcuts: [{
                     text: '最近一周',
@@ -113,6 +118,7 @@ export default {
         }
     },
     created() {
+        this.getList()
     },
     mounted() {
         this.$nextTick(() => {
@@ -121,17 +127,26 @@ export default {
     },
     methods: {
         searchQuery() {
-            console.log(this.searchFrom);
+            this.getList()
         },
         resetQuery() {
             this.searchFrom = {};
             this.getList()
         },
-        addOrders() { },
-        getList() { },
-        detail(row) {},
-        settlement(row) {},
-        compDelete(row) {}
+        addOrders() {
+            this.titleTop = '插入订单'
+            this.$refs.addOrEdit.openVisible()
+         },
+        async getList() {
+            let {total,code,rows} = await listOrder({...this.searchFrom,...this.queryParams});
+            if (code == 200) {
+                this.total = total;
+                this.tableData = rows
+            }
+        },
+        detail(row) { },
+        settlement(row) { },
+        compDelete(row) { }
     }
 };
 </script>

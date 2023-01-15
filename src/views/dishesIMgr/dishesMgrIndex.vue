@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:20:04
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-14 23:53:36
+ * @LastEditTime: 2023-01-15 16:53:39
  * @FilePath: \orderfood\src\views\dishesIMgr\dishesMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,9 +15,9 @@
             </div>
             <div class="topSearch-base magin-base">
                 <span>菜品分类：</span>
-                <el-select class="topSearch-width" v-model="searchFrom.eventType" placeholder="请选择">
-                    <el-option v-for="item in dishesClassify" :key="item.value" :label="item.label"
-                        :value="item.value"></el-option>
+                <el-select class="topSearch-width" v-model="searchFrom.foodTypeId" placeholder="请选择">
+                    <el-option v-for="item in dishesClassify" :key="item.id" :label="item.name"
+                        :value="item.id"></el-option>
                 </el-select>
             </div>
             <el-button class="magin-base" type="primary" size="mini" @click="searchQuery">搜索</el-button>
@@ -36,25 +36,29 @@
                     <el-table-column prop="cropName" label="封面图" align="center">
                         <template slot-scope="{row}">
                             <div class="row-img-box" v-viewer>
-                                <img :src="row.Img" alt="">
+                                <img :src="row.imgFile" alt="">
                             </div>
 
                         </template>
                     </el-table-column>
-                    <el-table-column prop="foodTypeName" label="菜品分类" align="center"></el-table-column>
+                    <el-table-column label="菜品分类" align="center">
+                        <template slot-scope="{row}">
+                            <span>{{dishesClassify[row.enable].name }}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="enable" label="状态" align="center">
                         <template slot-scope="{row}">
                             <span>{{ selectDictLabel(dict.type.enable_status, row.enable) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column prop="price" label="价格" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="创建时间" align="center"></el-table-column>
-                    <el-table-column label="操作" align="center">
+                    <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
+                    <el-table-column label="操作" align="center" width="240">
                         <template slot-scope="scope">
-                            <el-button @click="Shelves(scope.row)" size="small" class="link-m"
-                                type="primary">上架</el-button>
+                            <!-- <el-button @click="Shelves(scope.row)" size="small" class="link-m"
+                                type="primary" v-if="scope.row.enable != 1">上架</el-button>
                             <el-button @click="Takedown(scope.row)" size="small" class="link-m"
-                                type="primary">下架</el-button>
+                                type="primary" v-if="scope.row.enable != 0">下架</el-button> -->
                             <el-button @click="edit(scope.row)" size="small" class="link-m"
                                 type="warning">编辑</el-button>
                             <el-popconfirm confirm-button-text="是的" cancel-button-text="不用了"
@@ -71,15 +75,15 @@
                 </div>
             </div>
         </div>
-        <add-log ref="dishesIMgr"></add-log>
+        <add-log ref="dishesIMgr" :titleTop="titleTop"></add-log>
     </div>
 </template>
 <script>
-import { listFood, delFood } from '@/api/dishesMgr/dishesIMgr'
+import { listFood, delFood, getFoodClass } from '@/api/dishesMgr/dishesIMgr'
 import addLog from './dialog/addLog.vue'
 export default {
     name: 'dishesMgrIndex',
-    dicts: ['enable_status'],
+    dicts: ['enable_status','order_status'],
     components: {
         addLog
     },
@@ -94,29 +98,31 @@ export default {
             },
             baseHeight: '520',
             dishesClassify: [],
-            activeName: '0',
+            activeName: '99',
             dishesType: [
                 {
-                    id: 1,
+                    id: '0',
                     label: '全部',
-                    status: '0'
+                    status: '99'
                 },
                 {
-                    id: 2,
+                    id: '1',
                     label: '销售中',
                     status: '1'
                 },
                 {
-                    id: 3,
+                    id: '2',
                     label: '下架中',
-                    status: '2'
+                    status: '0'
                 }
-            ]
+            ],
+            titleTop: ''
 
         }
     },
     created() {
         this.getList();
+        this.getFoodClass();
     },
     mounted() {
         this.$nextTick(() => {
@@ -124,20 +130,29 @@ export default {
         })
     },
     methods: {
-        searchQuery() { },
-        resetQuery() { },
+        searchQuery() {
+            this.getList()
+        },
+        resetQuery() {
+            this.searchFrom = {}
+            this.getList()
+        },
         // 新增
         addDishes() {
+            this.titleTop = '新增菜品'
             this.$refs.dishesIMgr.openVisible()
         },
         // 上架  下架
         Shelves(row) { },
         Takedown(row) { },
         // 修改
-        edit(row) { },
+        edit(row) {
+            this.titleTop = '修改菜品'
+            this.$refs.dishesIMgr.openVisible(row)
+        },
         // 删除
         compDelete(row) {
-            delFood(id).then(res => {
+            delFood(row.id).then(res => {
                 if (res.code == 200) {
                     this.$message.success('删除成功！');
                     this.getList();
@@ -146,22 +161,35 @@ export default {
         },
         // 列表查询
         async getList() {
-            let { code, rows } = await listFood({ ...this.searchFrom, ...this.queryParams });
+            if (this.searchFrom.enable == '99') {
+                delete this.searchFrom.enable
+            }
+            let { code, rows,total } = await listFood({ ...this.searchFrom, ...this.queryParams });
             if (code == 200) {
                 this.tableData = rows;
+                this.total = total;
+            }
+        },
+        // 查询分类列表
+        async getFoodClass() {
+            let { code, rows } = await getFoodClass();
+            if (code == 200) {
+                this.dishesClassify = rows
             }
         },
         handleClick(tab, event) {
-            console.log(tab, event)
+            this.searchFrom.enable = tab.name;
+            this.getList()
         }
     }
 };
 </script>
 <style scoped lang='scss'>
-.row-img-box{
+.row-img-box {
     width: 80px;
     height: 60px;
-    img{
+
+    img {
         width: 100%;
         height: 100%;
     }
