@@ -7,7 +7,18 @@ const user = {
     name: '',
     avatar: '',
     roles: [],
-    permissions: []
+    permissions: [],
+    userInfo: {
+      userId: '',
+      userName: '',
+      nickName: '',
+      roleName: '',
+      regionId: '',
+      deptId: '',
+      deptName: '',
+      dept: {},
+      loginDate: ''
+    }
   },
 
   mutations: {
@@ -25,6 +36,19 @@ const user = {
     },
     SET_PERMISSIONS: (state, permissions) => {
       state.permissions = permissions
+    },
+    SET_USERINFO: (state, userInfo) => {
+      state.userInfo = {
+        userId: userInfo?.userId,
+        userName: userInfo?.userName || '—',
+        nickName: userInfo?.nickName || '—',
+        roleName: userInfo?.roles?.[0]?.roleName || '—',
+        regionId: userInfo?.regionId,
+        deptId: userInfo?.dept?.deptId,
+        deptName: userInfo?.dept?.deptName || '—',
+        dept: userInfo?.dept || {},
+        loginDate: userInfo?.loginDate || '—'
+      };
     }
   },
 
@@ -59,6 +83,7 @@ const user = {
             commit('SET_ROLES', ['ROLE_DEFAULT'])
           }
           commit('SET_NAME', user.userName)
+          commit('SET_USERINFO', user);
           commit('SET_AVATAR', avatar)
           resolve(res)
         }).catch(error => {

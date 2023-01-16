@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-10 21:35:40
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-10 22:06:08
+ * @LastEditTime: 2023-01-16 11:47:13
  * @FilePath: \orderfood\src\views\businessIMgr\dialog\addLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -10,19 +10,19 @@
     <div>
         <el-dialog :title="titleTop" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
             <el-form :model="saveForm" ref="ruleForm" :rules="rules" label-width="100px">
-                <el-form-item label="店铺名称" prop="name">
+                <el-form-item label="分店名称" prop="name">
                     <el-input v-model="saveForm.name"></el-input>
                 </el-form-item>
-                <el-form-item label="店铺地址" prop="adress">
+                <el-form-item label="分店地址" prop="adress">
                     <el-input v-model="saveForm.adress"></el-input>
                 </el-form-item>
-                <el-form-item label="账号" prop="account">
-                    <el-input :disabled="disabShow" v-model="saveForm.account"></el-input>
+                <el-form-item label="绑定店铺" prop="deptId">
+                    <el-select v-model="saveForm.deptId" placeholder="请选择绑定店铺">
+                        <el-option v-for="item in deptList" :key="item.deptId" :label="item.deptName"
+                            :value="item.deptId">
+                        </el-option>
+                    </el-select>
                 </el-form-item>
-                <el-form-item label="密码" prop="password">
-                    <el-input :disabled="disabShow" v-model="saveForm.password"></el-input>
-                </el-form-item>
-                <span v-if="saveForm.id">账号密码请移至系统管理中修改</span>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
@@ -33,6 +33,7 @@
 </template>
 <script>
 import { AddShop, editShop } from '@/api/businessMgr/businessIMgr'
+import { listDept } from "@/api/system/dept";
 export default {
     name: 'addLog',
     props: { titleTop: '' },
@@ -44,12 +45,14 @@ export default {
             rules: {
                 name: [{ required: true, message: '请填写店铺名', trigger: 'blur' }],
                 adress: [{ required: true, message: '请填写店铺地址', trigger: 'blur' }],
-                account: [{ required: true, message: '请设置店铺登录账号', trigger: 'blur' }],
-                password: [{ required: true, message: '请设置密码', trigger: 'blur' }],
-            }
+                deptId: [{ required: true, message: '请选择绑定店铺', trigger: 'change' }],
+
+            },
+            deptList: []
         }
     },
     created() {
+        this.getListDept()
     },
     mounted() {
     },
@@ -57,6 +60,9 @@ export default {
         openVisible(data) {
             this.dialogVisible = true;
             console.log(data);
+            this.saveForm = {
+                parentId: this.$store.state.user.userInfo.deptId
+            }
             if (data) {
                 this.disabShow = true
             } else {
@@ -68,23 +74,36 @@ export default {
         },
         handleClose() {
             this.dialogVisible = false;
+            this.$parent.getList()
+        },
+        getListDept() {
+            this.deptList = []
+            let queryParams = {
+                parentId: this.$store.state.user.userInfo.deptId
+            }
+            listDept(queryParams).then(response => {
+                this.deptList = this.handleTree(response.data, "deptId");
+                this.deptList.push(this.$store.state.user.userInfo.dept)
+                console.log(this.deptList);
+            });
         },
         subMitAdd() {
             this.$refs.ruleForm.validate((valid) => {
                 if (valid) {
                     // alert('submit!');
+                    console.log(this.saveForm);
                     if (this.saveForm.id) {
                         editShop(this.saveForm).then(res => {
                             if (res.code == 200) {
                                 this.$message.success('修改成功！')
-                                this.$emit('getList')
+                                this.handleClose()
                             }
                         })
                     } else {
                         AddShop(this.saveForm).then(res => {
                             if (res.code == 200) {
                                 this.$message.success('新增成功！')
-                                this.$emit('getList')
+                                this.handleClose()
                             }
                         })
                     }

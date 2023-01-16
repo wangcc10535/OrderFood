@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:31:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-15 17:45:20
+ * @LastEditTime: 2023-01-17 01:42:14
  * @FilePath: \orderfood\src\views\ordersIMgr\ordersMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -35,24 +35,41 @@
             <el-button type="primary" size="mini" icon="el-icon-plus" @click="addOrders">插入订单</el-button>
             <div class="content-table">
                 <el-table :data="tableData" border :height="baseHeight" style="width: 100%">
-                    <el-table-column prop="number" label="订单编号" fixed="left" align="center"></el-table-column>
-                    <el-table-column prop="shopId" label="所属店铺" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="桌号" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="点餐菜品" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="追加菜品" align="center"></el-table-column>
+                    <el-table-column prop="num" label="订单编号" align="center"></el-table-column>
+                    <el-table-column prop="shopName" label="所属店铺" align="center"></el-table-column>
+                    <el-table-column prop="tableName" label="桌号" align="center"></el-table-column>
+                    <el-table-column label="点餐菜品" align="center" width="180">
+                        <template slot-scope="{row}">
+                            <div class="listRows">
+                                <span v-for="(item,index) in row.food" :key="index">{{ item.foodName }}X{{ item.num }}</span>
+                            </div>
+                            </template>
+                    </el-table-column>
                     <el-table-column prop="createTime" label="开台时间" align="center"></el-table-column>
                     <el-table-column prop="billTime" label="结算时间" align="center"></el-table-column>
                     <el-table-column prop="price" label="订单金额" align="center"></el-table-column>
                     <el-table-column prop="amount" label="实收金额" align="center"></el-table-column>
-                    <el-table-column prop="discountAmount" label="优惠金额" align="center"></el-table-column>
-                    <el-table-column prop="status" label="订单状态" align="center"></el-table-column>
-                    <el-table-column prop="pay" label="收款方式" align="center"></el-table-column>
-                    <el-table-column label="操作" align="center">
+                    <el-table-column prop="discountAmount" label="优惠金额" align="center">
+                        <template slot-scope="{row}">
+                            {{ row.discountAmount || '-' }}
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="status" label="订单状态" align="center">
+                        <template slot-scope="{row}">
+                            <span>{{ selectDictLabel(dict.type.order_status, row.status) }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="pay" label="收款方式" align="center">
+                        <template slot-scope="{row}">
+                            <span>{{ selectDictLabel(dict.type.pay_type, row.pay) }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" align="center" width="240">
                         <template slot-scope="scope">
                             <el-button @click="detail(scope.row)" size="small" class="link-m"
                                 type="primary">查看</el-button>
                             <el-button @click="settlement(scope.row)" size="small" class="link-m"
-                                type="warning">结算</el-button>
+                                type="warning" v-if="scope.row.status == 1">结算</el-button>
                             <el-popconfirm confirm-button-text="是的" cancel-button-text="不用了"
                                 @confirm="compDelete(scope.row)" title="确定删除吗？">
                                 <el-button type="danger" size="small" class="link-m" slot="reference">删除</el-button>
@@ -67,19 +84,23 @@
                 </div>
             </div>
         </div>
-       <add-log ref="addOrEdit" :titleTop="titleTop"></add-log>
+        <add-log ref="addOrEdit" :titleTop="titleTop"></add-log>
+        <detail ref="detail"></detail>
+        <billLog ref="billLog"></billLog>
     </div>
 </template>
 <script>
 import { listOrder, delOrder } from '@/api/ordersIMgr/ordersMgr'
+import detail from './downLog/detail.vue'
 import addLog from './dialog/addOredit.vue'
+import billLog from './dialog/billLog.vue'
 export default {
     name: 'ordersMgrIndex',
-    dicts: ['order_status'],
-    components: {addLog},
+    dicts: ['order_status', 'pay_type'],
+    components: { addLog, detail,billLog },
     data() {
         return {
-            titleTop:'',
+            titleTop: '',
             pickerOptions: {
                 shortcuts: [{
                     text: '最近一周',
@@ -136,20 +157,41 @@ export default {
         addOrders() {
             this.titleTop = '插入订单'
             this.$refs.addOrEdit.openVisible()
-         },
+        },
         async getList() {
-            let {total,code,rows} = await listOrder({...this.searchFrom,...this.queryParams});
+            let { total, code, rows } = await listOrder({ ...this.searchFrom, ...this.queryParams });
             if (code == 200) {
                 this.total = total;
-                this.tableData = rows
+                let rowsList = rows.map(element => {
+                    if (element.discountAmount == null) {
+                        element.discountAmount = 0
+                    }
+                    element.amount = element.price - element.discountAmount
+                    return element
+                });
+                this.tableData = rowsList
             }
         },
-        detail(row) { },
-        settlement(row) { },
-        compDelete(row) { }
+        detail(row) {
+            this.$refs.detail.openDrawer(row)
+        },
+        settlement(row) { 
+            this.$refs.billLog.openVisible(row)
+        },
+        compDelete(row) {
+            delOrder(row.id).then(res => {
+                if (res.code == 200) {
+                    this.$message.success('操作成功！');
+                    this.getList()
+                }
+            })
+        }
     }
 };
 </script>
 <style scoped lang='scss'>
-
+.listRows {
+    display: flex;
+    flex-direction: column;
+}
 </style>

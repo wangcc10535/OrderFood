@@ -1,3 +1,11 @@
+/*
+ * @Author: wangcc 1053578651@qq.com
+ * @Date: 2023-01-15 20:21:45
+ * @LastEditors: wangcc 1053578651@qq.com
+ * @LastEditTime: 2023-01-16 12:32:11
+ * @FilePath: \orderfood\src\api\desktopMgr\desktopMgr.js
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import request from '@/utils/request'
 
 // 查询【区域】列表
@@ -21,7 +29,7 @@ export function addArea(data) {
 // 修改【区域】
 export function updateArea(data) {
     return request({
-        url: '/system/area',
+        url: '/system/area/edit',
         method: 'put',
         data: data
     })
@@ -40,7 +48,7 @@ export function delArea(id) {
 // 查询【桌面】列表
 export function listTable(query) {
     return request({
-        url: '/system/table/list',
+        url: '/system/foodTable/list',
         method: 'get',
         params: query
     })
@@ -49,7 +57,7 @@ export function listTable(query) {
 // 新增【桌面】
 export function addTable(data) {
     return request({
-        url: '/system/table/add',
+        url: '/system/foodTable/add',
         method: 'post',
         data: data
     })
@@ -58,7 +66,7 @@ export function addTable(data) {
 // 修改【桌面】
 export function updateTable(data) {
     return request({
-        url: '/system/table',
+        url: '/system/foodTable',
         method: 'put',
         data: data
     })
@@ -67,7 +75,7 @@ export function updateTable(data) {
 // 删除【桌面】
 export function delTable(id) {
     return request({
-        url: '/system/table/' + id,
+        url: '/system/foodTable/' + id,
         method: 'delete'
     })
 }

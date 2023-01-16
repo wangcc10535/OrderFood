@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-06 22:20:34
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-10 21:14:16
+ * @LastEditTime: 2023-01-15 22:12:25
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -28,7 +28,7 @@
 
             </div>
         </div>
-        <div class="footer-nav">
+        <!-- <div class="footer-nav">
             <div class="footer-total">
                 <div class="total-ing-box">
                     <span>已结：￥2888.00</span>
@@ -59,7 +59,7 @@
                     <span>我的</span>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="home">
             <router-link to="/">
                 <el-button type="primary" icon="el-icon-s-home" circle></el-button>

@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 20:57:10
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-10 22:21:05
+ * @LastEditTime: 2023-01-16 11:13:04
  * @FilePath: \orderfood\src\views\businessIMgr\businessMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -23,7 +23,6 @@
                     <el-table-column type="index" label="序号" fixed="left" align="center" width="50"></el-table-column>
                     <el-table-column prop="name" label="店铺名称" align="center"></el-table-column>
                     <el-table-column prop="adress" label="地址" align="center"></el-table-column>
-                    <el-table-column prop="account" label="账号" align="center"></el-table-column>
                     <el-table-column label="操作" align="center">
                         <template slot-scope="scope">
                             <el-button @click="edit(scope.row)" size="small" class="link-m"
@@ -91,7 +90,7 @@ export default {
             this.$refs.addLog.openVisible(row)
         },
         compDelete(row) {
-            deleteShop({id:row.id}).then(res => {
+            deleteShop(row.id).then(res => {
                 if (res.code == 200) {
                     this.$message.success('删除成功');
                     this.getList()
@@ -99,11 +98,11 @@ export default {
             })
         },
         async getList() {
-            console.log(this.searchFrom);
-            let { code, data,total } = await listShop({ ...this.searchFrom, ...this.queryParams })
+            let { code, rows,total } = await listShop({ ...this.searchFrom, ...this.queryParams })
             if (code == 200) {
-                this.tableData = data;
+                this.tableData = rows;
                 this.total = total
+                console.log(this.tableData);
             }
         }
     }

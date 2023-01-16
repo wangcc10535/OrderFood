@@ -2,13 +2,13 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-06 13:37:00
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-15 21:15:09
+ * @LastEditTime: 2023-01-16 01:10:23
  * @FilePath: \orderfood\src\views\desktopIMgr\QRcodeMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
     <div class="app-container">
-        <div class="content base-background" :style="{ height: branchHeight }">
+        <div class="content base-background" :style="{ 'min-height': branchHeight }">
             <div class="content-table center_QR_desktop">
                 <div class="top_box">
                     <h4>二维码管理</h4>
@@ -20,19 +20,19 @@
                     </div>
                 </div>
                 <div class="center-list">
-                    <div class="list_item" v-for="(item, index) in desktopList" :key="index">
+                    <div class="list_item" v-for="(item, index) in ArrayList" :key="index">
                         <div class="region_title">
                             {{ item.areaName }}
                             <el-link type="primary" @click="editRegionDesk(item)">修改</el-link>
                             <!-- <el-link type="danger" @click="regionDesk(item)">删除</el-link> -->
                         </div>
                         <div class="desktop_list">
-                            <div class="desktop_item" v-for="(ites, index) in item.child" :key="index">
+                            <div class="desktop_item" v-for="(ites, index) in item.ChildrenList" :key="index">
                                 <div class="item-name">
-                                    {{ ites.name }}
+                                    {{ ites.deskName }}
                                 </div>
                                 <div class="QR-img">
-                                    <el-link type="primary" @click="editDesk(ites)">修改</el-link>
+                                    <el-link type="primary" @click="editDesk(item,ites)">修改</el-link>
                                     <el-link type="danger" @click="delDesk(ites)">删除</el-link>
                                     <img src="@/assets/images/qr_code.png" alt="">
                                 </div>
@@ -66,12 +66,14 @@ export default {
             titleTop: '',
             titleLog: '',
             desktopList: [],
-            dataList: []
+            dataList: [],
+            ArrayList: []
         }
     },
     created() {
         this.getListArea();
         // this.getListTable();
+
 
     },
     mounted() {
@@ -88,7 +90,18 @@ export default {
         async getListTable() {
             let { code, rows } = await listTable();
             if (code == 200) {
-                this.dataList = rows
+                this.desktopList = [];
+                rows.forEach(element => {
+                    let data = {}
+                    data.id = 'desk' + element.id
+                    data.deskId = element.id;
+                    data.deskName = element.name;
+                    data.areaId = element.areaId
+                    data.parentId = 'area' + element.areaId;
+                    this.dataList.push(data)
+                })
+                this.ArrayList = [];
+                this.ArrayList = this.delTreeData(this.dataList, 'id', 'parentId', 'ChildrenList')
             }
         },
         // 新增桌面
@@ -97,9 +110,9 @@ export default {
             this.$refs.deskView.openVisible(item)
         },
         // 修改桌面
-        editDesk(its) {
+        editDesk(item,its) {
             this.titleLog = '修改桌面'
-            this.$refs.deskView.openVisible(its)
+            this.$refs.deskView.openVisible(item,its)
         },
         // 删除桌面
         delDesk(item) {
@@ -108,14 +121,14 @@ export default {
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                delTable(item.id).then(res => {
+                delTable(item.deskId).then(res => {
                     if (res.code == 200) {
                         this.$message({
                             type: 'success',
                             message: '删除成功!'
                         });
 
-                        this.getListTable()
+                        this.getListArea()
                     }
                 })
 
@@ -126,15 +139,16 @@ export default {
         async getListArea() {
             let { code, rows } = await listArea();
             if (code == 200) {
-                this.areaList = rows;
-                this.desktopList = [];
-                this.areaList.forEach(element => {
-                    console.log(element);
+                this.areaList = [];
+                this.dataList = [];
+                rows.forEach(element => {
                     let areaData = {}
                     areaData.areaName = element.name
                     areaData.areaId = element.id
-                    this.desktopList.push(areaData)
+                    areaData.id = 'area' + element.id
+                    this.dataList.push(areaData)
                 })
+                this.getListTable()
             }
         },
         // 新增区域
@@ -165,6 +179,15 @@ export default {
                     }
                 })
 
+            })
+        },
+        delTreeData(treeArr, id, parentId, childrenList) {
+            // 数据克隆
+            let cloneData = JSON.parse(JSON.stringify(treeArr));
+            return cloneData.filter(fatherItem => {
+                let warpArr = cloneData.filter(sonItem => fatherItem[id] == sonItem[parentId]);
+                warpArr.length ? fatherItem[childrenList] = warpArr : null;
+                return !fatherItem[parentId];
             })
         },
 
