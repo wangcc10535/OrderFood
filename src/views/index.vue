@@ -31,7 +31,7 @@ export default {
           },
           name: '后台管理系统',
           icon: require('@/assets/images/houtaiguanli-houtaiguanli.png'),
-          path: '/BackOfficeMgr',
+          path: '/BackOfficeIndex',
           // path: 'http://ntbigscreen.hw.hongweisoft.com/#/',
           hasPermi: ['region:index:BackOffice']
         },

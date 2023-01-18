@@ -62,7 +62,7 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/BackOfficeMgr',
+    path: '/BackOfficeMgr/BackOfficeIndex',
     component: Layout,
     redirect: 'BackOfficeIndex',
     children: [
