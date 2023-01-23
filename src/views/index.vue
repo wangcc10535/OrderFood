@@ -43,10 +43,36 @@ export default {
               'url(' + require('@/assets/images/yellow.png') + ')',
             backgroundRepeat: 'no-repeat'
           },
-          name: '点餐系统',
+          name: '餐馆点餐系统',
           icon: require('@/assets/images/diancan-2.png'),
           path: '/merchantIMgr/index',
           hasPermi: ['region:index:merchant']
+        },
+        {
+          id: 3,
+          src: '@/assets/images/yellow.png',
+          imageUrl: {
+            backgroundImage:
+              'url(' + require('@/assets/images/yellow.png') + ')',
+            backgroundRepeat: 'no-repeat'
+          },
+          name: '粉面点餐系统',
+          icon: require('@/assets/images/diancan-2.png'),
+          path: '/FlourOrderIMgr/index',
+          hasPermi: ['region:index:Flour']
+        },
+        {
+          id: 4,
+          src: '@/assets/images/yellow.png',
+          imageUrl: {
+            backgroundImage:
+              'url(' + require('@/assets/images/yellow.png') + ')',
+            backgroundRepeat: 'no-repeat'
+          },
+          name: '自助点餐系统',
+          icon: require('@/assets/images/diancan-2.png'),
+          path: '/BuffetOrderIMgr/index',
+          hasPermi: ['region:index:Buffet']
         }
       ]
     };
@@ -191,9 +217,13 @@ export default {
     }
   }
 
-  .menu-item:nth-child(2) {
+  .menu-item:last-child {
     margin-right: 0;
   }
+
+  // .menu-item:nth-child(2) {
+  //   margin-right: 0;
+  // }
 }
 
 @media screen and (max-width: 800px) {

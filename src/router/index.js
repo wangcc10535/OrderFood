@@ -85,6 +85,16 @@ export const constantRoutes = [
     component: (resolve) => require(['@/views/MerchantOrderMgr/merchantIMgr/index'], resolve),
   },
   {
+    path: '/BuffetOrderIMgr/index',
+    hidden: true,
+    component: (resolve) => require(['@/views/MerchantOrderMgr/BuffetOrderIMgr/index'], resolve),
+  },
+  {
+    path: '/FlourOrderIMgr/index',
+    hidden: true,
+    component: (resolve) => require(['@/views/MerchantOrderMgr/FlourOrderIMgr/index'], resolve),
+  },
+  {
     path: '/user',
     component: Layout,
     hidden: true,
