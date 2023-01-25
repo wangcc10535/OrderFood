@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-06 22:20:34
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-24 00:46:58
+ * @LastEditTime: 2023-01-25 00:47:59
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -14,14 +14,14 @@
                     <span>{{ item.title }}</span>
                 </div>
                 <div class="desktop-list">
-                    <div v-for="(item, index) in item.child" :key="index" @click="addMerchan(item)"
-                        :class="item.status == 0 ? 'item-box' : 'item-box item-box-ing'">
-                        <div :class="item.status == 0 ? 'top-item' : 'top-item top-item-ing'">
-                            {{ item.deskTitle }}
+                    <div v-for="(its, index) in item.child" :key="index" @click="addMerchan(item,its)"
+                        :class="its.status == 0 ? 'item-box' : 'item-box item-box-ing'">
+                        <div :class="its.status == 0 ? 'top-item' : 'top-item top-item-ing'">
+                            {{ its.deskTitle }}
                         </div>
-                        <div :class="item.status == 0 ? 'status-span' : 'status-span status-span-ing'">
-                            <span v-if="item.status == 0">空闲</span>
-                            <span v-if="item.status == 1">{{ item.money }}</span>
+                        <div :class="its.status == 0 ? 'status-span' : 'status-span status-span-ing'">
+                            <span v-if="its.status == 0">空闲</span>
+                            <span v-if="its.status == 1">{{ its.money }}</span>
                         </div>
                     </div>
                 </div>
@@ -34,19 +34,23 @@
 
         </div>
         <visible-log ref="visible" :titleTop="titleTop"></visible-log>
+        <order-detail ref="orderDetail" :tableTitle="tableName"></order-detail>
     </div>
 </template>
 <script>
 import visibleLog from './dialog/visibleLog.vue'
+import orderDetail from './dialog/orderDetail.vue'
 import { listArea, delArea, listTable, delTable } from '@/api/desktopMgr/desktopMgr'
 export default {
     name: 'index',
     components: {
-        visibleLog
+        visibleLog,
+        orderDetail
     },
     data() {
         return {
             titleTop: '',
+            tableName: '',
             desktopList: [
                 {
                     id: 1,
@@ -135,10 +139,15 @@ export default {
     mounted() {
     },
     methods: {
-        addMerchan(item) {
-            console.log(item);
-            this.titleTop = '开台点餐'
-            this.$refs.visible.openVisible(item)
+        addMerchan(item,its) {
+            if (its.status == 0) {
+                this.titleTop = '开台点餐'
+                this.$refs.visible.openVisible(its)
+            }else {
+                this.tableName = item.title+ '-' + its.deskTitle
+                this.$refs.orderDetail.openVisible(its)
+            }
+
         }
     }
 };

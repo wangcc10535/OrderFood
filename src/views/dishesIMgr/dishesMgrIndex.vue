@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:20:04
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-17 04:25:45
+ * @LastEditTime: 2023-01-24 23:50:00
  * @FilePath: \orderfood\src\views\dishesIMgr\dishesMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -33,7 +33,7 @@
                 <el-table :data="tableData" border :height="baseHeight" style="width: 100%">
                     <el-table-column type="index" label="序号" fixed="left" align="center" width="50"></el-table-column>
                     <el-table-column prop="name" label="菜品名称" align="center"></el-table-column>
-                    <el-table-column prop="cropName" label="封面图" align="center">
+                    <el-table-column label="封面图" align="center">
                         <template slot-scope="{row}">
                             <div class="row-img-box" v-viewer>
                                 <img :src="row.imgFile" alt="">
@@ -41,12 +41,12 @@
 
                         </template>
                     </el-table-column>
-                    <el-table-column label="菜品分类" align="center">
-                        <template slot-scope="{row}">
+                    <el-table-column prop="enable" label="菜品分类" align="center">
+                        <!-- <template slot-scope="{row}">
                             <span>{{dishesClassify[row.enable].name }}</span>
-                        </template>
+                        </template> -->
                     </el-table-column>
-                    <el-table-column prop="enable" label="状态" align="center">
+                    <el-table-column label="状态" align="center">
                         <template slot-scope="{row}">
                             <span>{{ selectDictLabel(dict.type.enable_status, row.enable) }}</span>
                         </template>
@@ -161,9 +161,9 @@ export default {
         },
         // 列表查询
         async getList() {
-            if (this.searchFrom.enable == '99') {
-                delete this.searchFrom.enable
-            }
+            // if (this.searchFrom.enable == '99') {
+            //     delete this.searchFrom.enable
+            // }
             let { code, rows,total } = await listFood({ ...this.searchFrom, ...this.queryParams });
             if (code == 200) {
                 this.tableData = rows;
