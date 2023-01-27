@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-06 13:37:00
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-25 00:23:02
+ * @LastEditTime: 2023-01-27 13:46:12
  * @FilePath: \orderfood\src\views\desktopIMgr\QRcodeMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -24,7 +24,7 @@
                         <div class="region_title">
                             {{ item.areaName }}
                             <el-link type="primary" @click="editRegionDesk(item)">修改</el-link>
-                            <!-- <el-link type="danger" @click="regionDesk(item)">删除</el-link> -->
+                            <el-link type="danger" style="margin-left:10px;" @click="regionDesk(item)" v-if="!item.ChildrenList">删除</el-link>
                         </div>
                         <div class="desktop_list">
                             <div class="desktop_item" v-for="(ites, index) in item.ChildrenList" :key="index">
@@ -100,6 +100,7 @@ export default {
                     data.parentId = 'area' + element.areaId;
                     this.dataList.push(data)
                 })
+                this.desktopList = rows;
                 this.ArrayList = [];
                 this.ArrayList = this.delTreeData(this.dataList, 'id', 'parentId', 'ChildrenList')
                 console.log(this.ArrayList);

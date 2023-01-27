@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-15 17:23:29
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-17 01:47:11
+ * @LastEditTime: 2023-01-27 13:40:19
  * @FilePath: \orderfood\src\views\ordersIMgr\dialog\addOredit.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -50,12 +50,12 @@
                 <el-form-item label="订单金额">
                     <el-input disabled v-model="saveForm.price"></el-input>
                 </el-form-item>
-                <el-form-item label="优惠金额" prop="discountAmount">
+                <!-- <el-form-item label="优惠金额" prop="discountAmount">
                     <el-radio-group v-model="saveForm.discountAmount" size="small">
                         <el-radio :label="item.value" border v-for="(item, index) in dict.type.preferential_type"
                             :key="index">{{ item.label }}</el-radio>
                     </el-radio-group>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item label="是否结算" prop="status">
                     <el-radio-group v-model="saveForm.status" size="small">
                         <el-radio :label="item.value" border v-for="(item, index) in dict.type.order_status"
