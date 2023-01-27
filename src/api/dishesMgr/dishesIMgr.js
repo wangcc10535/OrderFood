@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-14 23:26:33
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-16 13:42:57
+ * @LastEditTime: 2023-01-27 20:04:32
  * @FilePath: \orderfood\src\api\dishesMgr\dishesIMgr.js
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -46,7 +46,7 @@ export function updateFood(data) {
 // 删除【菜品】
 export function delFood(id) {
     return request({
-        url: '/system/food/' + id,
+        url: '/system/food/del/' + id,
         method: 'delete'
     })
 }
@@ -82,7 +82,7 @@ export function updateFoodClass(data) {
 // 删除【菜品分类】
 export function delFoodClass(id) {
     return request({
-        url: '/system/type/' + id,
+        url: '/system/type/del/' + id,
         method: 'delete'
     })
 }

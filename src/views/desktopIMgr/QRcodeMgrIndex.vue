@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-06 13:37:00
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-27 13:46:12
+ * @LastEditTime: 2023-01-27 23:52:40
  * @FilePath: \orderfood\src\views\desktopIMgr\QRcodeMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -24,12 +24,12 @@
                         <div class="region_title">
                             {{ item.areaName }}
                             <el-link type="primary" @click="editRegionDesk(item)">修改</el-link>
-                            <el-link type="danger" style="margin-left:10px;" @click="regionDesk(item)" v-if="!item.ChildrenList">删除</el-link>
+                            <el-link type="danger" style="margin-left:10px;" @click="regionDesk(item)" v-if="item.foodTableVos.length == 0">删除</el-link>
                         </div>
                         <div class="desktop_list">
-                            <div class="desktop_item" v-for="(ites, index) in item.ChildrenList" :key="index">
+                            <div class="desktop_item" v-for="(ites, index) in item.foodTableVos" :key="index">
                                 <div class="item-name">
-                                    {{ ites.deskName }}
+                                    {{ ites.name }}
                                 </div>
                                 <div class="QR-img">
                                     <el-link type="primary" @click="editDesk(item,ites)">修改</el-link>
@@ -123,7 +123,7 @@ export default {
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                delTable(item.deskId).then(res => {
+                delTable(item.id).then(res => {
                     if (res.code == 200) {
                         this.$message({
                             type: 'success',
@@ -141,16 +141,17 @@ export default {
         async getListArea() {
             let { code, rows } = await listArea();
             if (code == 200) {
-                this.areaList = [];
-                this.dataList = [];
-                rows.forEach(element => {
-                    let areaData = {}
-                    areaData.areaName = element.name
-                    areaData.areaId = element.id
-                    areaData.id = 'area' + element.id
-                    this.dataList.push(areaData)
-                })
-                this.getListTable()
+                this.ArrayList =  rows
+                // this.areaList = [];
+                // this.dataList = [];
+                // rows.forEach(element => {
+                //     let areaData = {}
+                //     areaData.areaName = element.name
+                //     areaData.areaId = element.id
+                //     areaData.id = 'area' + element.id
+                //     this.dataList.push(areaData)
+                // })
+                // this.getListTable()
             }
         },
         // 新增区域
@@ -170,7 +171,8 @@ export default {
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                delArea(item.id).then(res => {
+                console.log(item);
+                delArea(item.areaId).then(res => {
                     if (res.code == 200) {
                         this.$message({
                             type: 'success',

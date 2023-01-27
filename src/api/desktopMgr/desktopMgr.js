@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-15 20:21:45
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-16 12:32:11
+ * @LastEditTime: 2023-01-27 20:05:05
  * @FilePath: \orderfood\src\api\desktopMgr\desktopMgr.js
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -38,7 +38,7 @@ export function updateArea(data) {
 // 删除【区域】
 export function delArea(id) {
     return request({
-        url: '/system/area/' + id,
+        url: '/system/area/del/' + id,
         method: 'delete'
     })
 }
@@ -66,7 +66,7 @@ export function addTable(data) {
 // 修改【桌面】
 export function updateTable(data) {
     return request({
-        url: '/system/foodTable',
+        url: '/system/foodTable/edit',
         method: 'put',
         data: data
     })
@@ -75,7 +75,7 @@ export function updateTable(data) {
 // 删除【桌面】
 export function delTable(id) {
     return request({
-        url: '/system/foodTable/' + id,
+        url: '/system/foodTable/del/' + id,
         method: 'delete'
     })
 }

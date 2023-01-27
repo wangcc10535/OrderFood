@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-15 20:53:43
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-16 01:12:23
+ * @LastEditTime: 2023-01-27 23:11:01
  * @FilePath: \orderfood\src\views\desktopIMgr\dialog\tableDesk.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -21,7 +21,7 @@
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleClose">取 消</el-button>
-                <el-button type="primary" @click="subMitAdd">确 定</el-button>
+                <el-button type="primary" @click="subMitAdd" v-preventReClick>确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -52,9 +52,7 @@ export default {
             this.saveForm = {};
             console.log(data);
             if (data) {
-                delete data.id;
                 data.areaName = item.areaName
-                data.name = data.deskName
                 this.saveForm = data
             } else {
                 this.saveForm.areaName = item.areaName;
@@ -68,7 +66,7 @@ export default {
         subMitAdd() {
             this.$refs.ruleForm.validate((valid) => {
                 if (valid) {
-                    if (this.saveForm.deskId) {
+                    if (this.saveForm.id) {
                         updateTable(this.saveForm).then(res => {
                             if (res.code == 200) {
                                 this.$message.success('修改成功！')

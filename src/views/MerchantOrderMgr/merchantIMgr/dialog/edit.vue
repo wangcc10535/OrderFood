@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-23 18:19:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-28 02:38:37
+ * @LastEditTime: 2023-01-28 02:22:18
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\visibleLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -63,7 +63,7 @@
 </template>
 <script>
 import { getFoodClass, listFood } from '@/api/dishesMgr/dishesIMgr'
-import { addOrder } from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
+import { addOrder, editOrder } from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
 export default {
 
     name: 'visibleLog',
@@ -82,7 +82,8 @@ export default {
             settlementList: [],
             ContNum: 0,
             moneyNum: 0,
-            paramsData: []
+            paramsData: [],
+            editData: {}
 
         }
     },
@@ -105,20 +106,21 @@ export default {
             this.classData = {};
             this.settlementList = [];
             console.log(data);
-            if (data) {
-                this.saveForm = data
+            if (data.orderNo) {
+                this.editData = data
+                this.settlementList = data.food.map(item => {
+                    item.name = item.foodName;
+                    return item;
+                })
+                this.ContNum = this.sum(this.settlementList);
+                this.moneyNum = this.money(this.settlementList)
             }
             this.getFoodClass();
             this.getListFood();
         },
         handleClose() {
             this.dialogVisible = false;
-            console.log(this.saveForm);
-            if (this.saveForm.price) {
-                this.$emit('getDetail','更新')
-            } else {
-                this.$parent.getFoodTable()
-            }
+            this.$emit('getDetail')
 
         },
 
@@ -168,9 +170,7 @@ export default {
         // 点击拼接结算
         menuClick(item) {
             this.settlementList.push(item)
-            // this.settlementList = Array.from(new Set(this.settlementList))
             this.settlementList = this.unique(this.settlementList)
-
             this.ContNum = this.sum(this.settlementList);
             this.moneyNum = this.money(this.settlementList)
         },
@@ -187,17 +187,18 @@ export default {
                 return data
             })
             let params = {
-                tableId: this.saveForm.id,
-                tableName: this.saveForm.name,
+                tableId: this.editData.tableId,
+                tableName: this.editData.tableName,
                 price: this.moneyNum,
                 amount: this.moneyNum,
                 discountAmount: 0,
-                food: this.paramsData
+                food: this.paramsData,
+                id: this.editData.id
             }
             console.log(params);
-            addOrder(params).then(res => {
+            editOrder().then(res => {
                 if (res.code == 200) {
-                    this.$message.success('下单成功！');
+                    this.$message.success('修改成功！');
                     this.handleClose()
                 }
             })

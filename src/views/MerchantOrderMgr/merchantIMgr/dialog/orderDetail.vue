@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com 桌面订单统计
  * @Date: 2023-01-24 22:09:27
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-25 01:08:24
+ * @LastEditTime: 2023-01-28 03:03:53
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\orderDetail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,24 +15,26 @@
                     <!-- supplement -->
                     <el-button type="primary" @click="supplementMenu">加菜</el-button>
                 </div>
-                <div class="detail-box" v-for="(order,index) in orderList" :key="index">
+                <div class="detail-box" v-for="(order, index) in orderList" :key="index">
                     <div class="order-detail">
                         <h3 class="order-detail-nickName">{{ order.nickName }}</h3>
-                        <p style="padding: 0 10px;">订单编号：{{order.orderId}}</p>
+                        <p style="padding: 0 10px;">订单编号：{{ order.orderNo }}</p>
                         <div class="order-detail-item">
                             <div class="order-detail-item-list">
                                 <span class="order-detail-item-list-title weight">菜品名称</span>
                                 <span class="order-detail-item-list-price weight">金额</span>
                                 <span class="order-detail-item-list-total weight">数量</span>
                             </div>
-                            <div class="order-detail-item-list" v-for="(items,ids) in order.orderList" :key="ids">
-                                <span class="order-detail-item-list-title">{{items.name}}</span>
-                                <span class="order-detail-item-list-price">{{items.price | numFilter}}</span>
-                                <span class="order-detail-item-list-total">{{items.num}}</span>
+                            <div class="order-detail-item-list" v-for="(items, ids) in order.food" :key="ids">
+                                <span class="order-detail-item-list-title">{{ items.foodName }}</span>
+                                <span class="order-detail-item-list-price">{{
+                                    items.price * items.num | numFilter
+                                }}</span>
+                                <span class="order-detail-item-list-total">{{ items.num }}</span>
                             </div>
                         </div>
                         <div class="footer-money">
-                            合计金额：{{order.totalNum |numFilter}}
+                            合计金额：{{ order.price | numFilter }}
                         </div>
                     </div>
                     <div class="footer-button">
@@ -46,7 +48,9 @@
                 <el-button @click="handleClose">取 消</el-button>
                 <el-button type="primary" @click="subMitAdd">结 算</el-button>
             </span>
-            <visible-log ref="visible" :titleTop="titleTop"></visible-log>
+            <!-- 修改订单 -->
+            <edit ref="edit" @getDetail="getDetail" :titleTop="titleTop"></edit>
+            <visible-log ref="visible" @getDetail="getDetail" :titleTop="visibleTitle"></visible-log>
             <el-dialog width="40%" title="结算" :visible.sync="innerVisible" append-to-body>
                 <div class="settlement-box">
                     <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
@@ -54,7 +58,7 @@
                             {{ tableTitle }}
                         </el-form-item>
                         <el-form-item label="消费总金额：" prop="name">
-                            {{money(orderList)}}元
+                            {{ money(orderList) }}元
                         </el-form-item>
                         <el-form-item label="收款方式：" prop="name">
                             <el-radio-group v-model="saveFrom.pay" size="small">
@@ -73,68 +77,28 @@
     </div>
 </template>
 <script>
+import edit from './edit.vue'
 import visibleLog from './visibleLog.vue'
+import { detailOrder, delOrder, billsOrder } from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
 export default {
     name: '',
     props: { tableTitle: '' },
     components: {
+        edit,
         visibleLog
     },
     dicts: ['pay_type'],
     data() {
         return {
             titleTop: '',
+            visibleTitle: '',
             dialogVisible: false,
             innerVisible: false,
             saveFrom: {},
             rules: {},
             ruleForm: {},
-            orderList:[
-                {
-                    totalNum:888,
-                    orderId:'12450124',
-                    nickName: this.$store.state.user.userInfo.nickName,
-                    orderList:[
-                        {
-                            name:'麻辣小龙虾',
-                            price:88,
-                            num:1
-                        },
-                        {
-                            name:'麻辣小龙虾',
-                            price:88,
-                            num:1
-                        },
-                        {
-                            name:'麻辣小龙虾',
-                            price:88,
-                            num:1
-                        }
-                    ]
-                },
-                {
-                    totalNum:420,
-                    orderId:'0121451',
-                    nickName:this.$store.state.user.userInfo.nickName,
-                    orderList:[
-                        {
-                            name:'红烧蹄膀',
-                            price:68,
-                            num:1
-                        },
-                        {
-                            name:'麻辣小龙虾',
-                            price:88,
-                            num:1
-                        },
-                        {
-                            name:'火爆腰花',
-                            price:26,
-                            num:1
-                        }
-                    ]
-                }
-            ]
+            tableData: {},
+            orderList: []
         }
     },
     created() {
@@ -153,13 +117,35 @@ export default {
     methods: {
         handleClose() {
             this.dialogVisible = false;
+            this.$parent.getFoodTable()
         },
         settlementClose() {
             this.innerVisible = false;
         },
         openVisible(data) {
             console.log(data);
+            this.tableData = data;
             this.dialogVisible = true;
+            this.getDetailOrder();
+        },
+        async getDetailOrder() {
+            let params = {
+                tableId: this.tableData.id
+            }
+            let { rows, code } = await detailOrder(params)
+            if (code == 200) {
+                if (rows.length == 0) {
+                    this.handleClose()
+                }
+                this.orderList = rows.map(item => {
+                    item.nickName = this.$store.state.user.userInfo.nickName;
+                    return item;
+                })
+            }
+        },
+        getDetail(data) {
+            console.log(data);
+            this.getDetailOrder()
         },
         // 结算订单
         subMitAdd() {
@@ -170,7 +156,7 @@ export default {
         // 修改订单
         editOrder(data) {
             this.titleTop = '修改订单'
-            this.$refs.visible.openVisible(data)
+            this.$refs.edit.openVisible(data)
         },
         // 取消订单
         delOrder(data) {
@@ -179,24 +165,46 @@ export default {
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                this.$message({
-                    type: 'success',
-                    message: '操作成功!'
-                });
+                delOrder(data.id).then(res => {
+                    if (res.code == 200) {
+                        this.$message({
+                            type: 'success',
+                            message: '操作成功!'
+                        });
+                        this.getDetailOrder()
+                    }
+                })
+
             })
         },
         supplementMenu() {
-            this.titleTop = '加菜'
-            this.$refs.visible.openVisible()
+            this.visibleTitle = '加菜'
+            this.$refs.visible.openVisible(this.tableData)
         },
         // 确定收款
         settlement() {
-
+            let dataArray = this.orderList.map(item =>{
+                return item.id
+            })
+            let params = {
+                ids: dataArray,
+                pay: this.saveFrom.pay
+            }
+            console.log(params);
+            billsOrder().then(res => {
+                if (res.code == 200) {
+                    this.$message({
+                        type: 'success',
+                        message: '结算成功!'
+                    });
+                    this.handleClose()
+                }
+            })
         },
         money(arr) {
             var s = 0;
             arr.forEach(function (val, idx, arr) {
-                s += Number(val.totalNum)
+                s += Number(val.price)
             }, 0);
             return s;
         },
@@ -220,7 +228,7 @@ export default {
         }
     }
 
-    .detail-box:nth-child(4n) {
+    .detail-box:nth-child(5n) {
         margin-right: 0;
     }
 
