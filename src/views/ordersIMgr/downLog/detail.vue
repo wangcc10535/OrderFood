@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-16 23:01:13
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-17 01:30:11
+ * @LastEditTime: 2023-01-29 00:50:10
  * @FilePath: \orderfood\src\views\ordersIMgr\downLog\detail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -24,11 +24,11 @@
                                         </el-col>
                                         <el-col :span="18">
                                             <div v-if="item.type === 'status'">
-                                                {{ selectDictLabel(dict.type.order_status, details[item.key]) }}</div>
+                                                {{ selectDictLabel(dict.type.order_status, details[item.key]) || '-' }}</div>
                                             <div v-else-if="item.type === 'pay'">
-                                                {{ selectDictLabel(dict.type.pay_type, details[item.key]) }}
+                                                {{ selectDictLabel(dict.type.pay_type, details[item.key])  || '-'}}
                                             </div>
-                                            <div v-else>{{ details[item.key] }}</div>
+                                            <div v-else>{{ details[item.key]  || '-'}}</div>
                                         </el-col>
                                     </el-row>
                                 </div>
@@ -72,7 +72,7 @@ export default {
             dataTime: '',
             tableData: [],
             baseList: [
-                { id: 1, label: '订单编号', value: '', key: 'num' },
+                { id: 1, label: '订单编号', value: '', key: 'orderNo' },
                 { id: 9, label: '所属门店', value: '', key: 'shopName' },
                 { id: 9, label: '桌面', value: '', key: 'tableName' },
                 {

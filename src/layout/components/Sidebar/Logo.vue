@@ -2,18 +2,18 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2022-12-27 13:10:54
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-07 00:28:43
+ * @LastEditTime: 2023-01-29 01:33:11
  * @FilePath: \orderfood\src\layout\components\Sidebar\Logo.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
   <div class="sidebar-logo-container" :class="{'collapse':collapse}" :style="{ backgroundColor: sideTheme === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground }">
     <transition name="sidebarLogoFade">
-      <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/BackOfficeMgr">
+      <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/BackOfficeMgr/BackOfficeIndex">
         <img v-if="logo" :src="logo" class="sidebar-logo" />
         <h1 v-else class="sidebar-title" :style="{ color: sideTheme === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }">{{ title }} </h1>
       </router-link>
-      <router-link v-else key="expand" class="sidebar-logo-link" to="/BackOfficeMgr">
+      <router-link v-else key="expand" class="sidebar-logo-link" to="/BackOfficeMgr/BackOfficeIndex">
         <img v-if="logo" :src="logo" class="sidebar-logo" />
         <h1 class="sidebar-title" :style="{ color: sideTheme === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }">{{ title }} </h1>
       </router-link>

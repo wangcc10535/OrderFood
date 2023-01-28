@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com 粉面点餐
  * @Date: 2023-01-23 15:35:14
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-24 02:00:06
+ * @LastEditTime: 2023-01-29 01:23:08
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\FlourOrderIMgr\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -66,6 +66,7 @@
 </template>
 <script>
 import { getFoodClass, listFood } from '@/api/dishesMgr/dishesIMgr'
+import { addOrder } from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
 export default {
     name: 'index',
     data() {
@@ -103,7 +104,6 @@ export default {
             this.settlementList = [];
             this.ContNum = this.sum(this.settlementList);
             this.moneyNum = this.money(this.settlementList);
-            this.getListFood();
         },
         // 获取菜品类别
         async getFoodClass() {
@@ -155,12 +155,35 @@ export default {
             this.ContNum = this.sum(this.settlementList);
             this.moneyNum = this.money(this.settlementList)
         },
-        itemNum(data) {
+        itemNum() {
             this.ContNum = this.sum(this.settlementList);
             this.moneyNum = this.money(this.settlementList)
         },
         subMitAdd() {
             console.log(this.settlementList);
+            let paramsData = this.settlementList.map(item => {
+                let data = {}
+                data.foodId = item.id;
+                data.num = item.num
+                return data
+            })
+            let newTime = new Date()
+            let params = {
+                tableId: '-1',
+                price: this.moneyNum,
+                amount: this.moneyNum,
+                discountAmount: 0,
+                food: paramsData,
+                status: '2',
+                billTime: this.parseTime(newTime)
+            }
+            console.log(params);
+            addOrder(params).then(res => {
+                if (res.code == 200) {
+                    this.$message.success('下单成功！');
+                    this.openVisible()
+                }
+            })
         },
         // 数相加
         sum(arr) {

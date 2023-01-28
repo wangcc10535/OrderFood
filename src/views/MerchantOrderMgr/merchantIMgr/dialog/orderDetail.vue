@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com 桌面订单统计
  * @Date: 2023-01-24 22:09:27
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-28 03:03:53
+ * @LastEditTime: 2023-01-29 01:05:11
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\orderDetail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -54,14 +54,14 @@
             <el-dialog width="40%" title="结算" :visible.sync="innerVisible" append-to-body>
                 <div class="settlement-box">
                     <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-                        <el-form-item label="桌面：" prop="name">
+                        <el-form-item label="桌面：">
                             {{ tableTitle }}
                         </el-form-item>
-                        <el-form-item label="消费总金额：" prop="name">
+                        <el-form-item label="消费总金额：">
                             {{ money(orderList) }}元
                         </el-form-item>
-                        <el-form-item label="收款方式：" prop="name">
-                            <el-radio-group v-model="saveFrom.pay" size="small">
+                        <el-form-item label="收款方式：" prop="pay">
+                            <el-radio-group v-model="ruleForm.pay" size="small">
                                 <el-radio :label="item.value" border v-for="(item, index) in dict.type.pay_type"
                                     :key="index">{{ item.label }}</el-radio>
                             </el-radio-group>
@@ -95,7 +95,9 @@ export default {
             dialogVisible: false,
             innerVisible: false,
             saveFrom: {},
-            rules: {},
+            rules: {
+                pay: [{ required: true, message: '请选择支付方式', trigger: 'change' }]
+            },
             ruleForm: {},
             tableData: {},
             orderList: []
@@ -183,23 +185,31 @@ export default {
         },
         // 确定收款
         settlement() {
-            let dataArray = this.orderList.map(item =>{
-                return item.id
-            })
-            let params = {
-                ids: dataArray,
-                pay: this.saveFrom.pay
-            }
-            console.log(params);
-            billsOrder().then(res => {
-                if (res.code == 200) {
-                    this.$message({
-                        type: 'success',
-                        message: '结算成功!'
-                    });
-                    this.handleClose()
+            this.$refs.ruleForm.validate((valid) => {
+                if (valid) {
+                    let dataArray = this.orderList.map(item => {
+                        return item.id
+                    })
+                    let params = {
+                        ids: dataArray,
+                        pay: this.ruleForm.pay
+                    }
+                    console.log(params);
+                    billsOrder(params).then(res => {
+                        if (res.code == 200) {
+                            this.$message({
+                                type: 'success',
+                                message: '结算成功!'
+                            });
+                            this.handleClose()
+                        }
+                    })
+                } else {
+                    console.log('error submit!!');
+                    return false;
                 }
-            })
+            });
+
         },
         money(arr) {
             var s = 0;

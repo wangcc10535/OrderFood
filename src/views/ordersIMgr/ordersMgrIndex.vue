@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:31:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-17 01:42:14
+ * @LastEditTime: 2023-01-29 01:22:22
  * @FilePath: \orderfood\src\views\ordersIMgr\ordersMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -35,9 +35,14 @@
             <el-button type="primary" size="mini" icon="el-icon-plus" @click="addOrders">插入订单</el-button>
             <div class="content-table">
                 <el-table :data="tableData" border :height="baseHeight" style="width: 100%">
-                    <el-table-column prop="num" label="订单编号" align="center"></el-table-column>
+                    <el-table-column prop="orderNo" label="订单编号" align="center"></el-table-column>
                     <el-table-column prop="shopName" label="所属店铺" align="center"></el-table-column>
-                    <el-table-column prop="tableName" label="桌号" align="center"></el-table-column>
+                    <el-table-column label="桌号" align="center">
+                        <template slot-scope="{row}">
+                            <span v-if="row.tableId < 0">-</span>
+                            <span v-else>{{ row.tableName }}</span>
+                            </template>
+                    </el-table-column>
                     <el-table-column label="点餐菜品" align="center" width="180">
                         <template slot-scope="{row}">
                             <div class="listRows">
@@ -61,7 +66,7 @@
                     </el-table-column>
                     <el-table-column prop="pay" label="收款方式" align="center">
                         <template slot-scope="{row}">
-                            <span>{{ selectDictLabel(dict.type.pay_type, row.pay) }}</span>
+                            <span>{{ selectDictLabel(dict.type.pay_type, row.pay) || '-' }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" align="center" width="240">
