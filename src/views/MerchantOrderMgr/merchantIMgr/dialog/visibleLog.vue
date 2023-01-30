@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-23 18:19:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-28 02:38:37
+ * @LastEditTime: 2023-01-30 23:05:06
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\visibleLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -180,6 +180,10 @@ export default {
         },
         subMitAdd() {
             // console.log(this.settlementList);
+            if (this.settlementList.length == 0) {
+                this.$message.error('请选择菜品下单！');
+                return false
+            }
             this.paramsData = this.settlementList.map(item => {
                 let data = {}
                 data.foodId = item.id;

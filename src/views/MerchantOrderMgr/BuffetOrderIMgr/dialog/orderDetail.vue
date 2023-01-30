@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com 桌面订单统计
  * @Date: 2023-01-24 22:09:27
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-25 01:45:47
+ * @LastEditTime: 2023-01-30 23:19:32
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\orderDetail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -14,61 +14,61 @@
                 <div class="detail-box" v-for="(order,index) in orderList" :key="index">
                     <div class="order-detail">
                         <h3 class="order-detail-nickName">{{ order.nickName }}</h3>
-                        <p style="padding: 0 10px;">订单编号：{{order.orderId}}</p>
+                        <p style="padding: 0 10px;">订单编号：{{order.orderNo}}</p>
                         <div class="order-detail-item">
                             <div class="order-detail-item-list">
                                 <span class="order-detail-item-list-title weight">菜品名称</span>
                                 <span class="order-detail-item-list-price weight">金额</span>
                                 <span class="order-detail-item-list-total weight">数量</span>
                             </div>
-                            <div class="order-detail-item-list" v-for="(items,ids) in order.orderList" :key="ids">
-                                <span class="order-detail-item-list-title">{{items.name}}</span>
-                                <span class="order-detail-item-list-price">{{items.price | numFilter}}</span>
+                            <div class="order-detail-item-list" v-for="(items,ids) in order.food" :key="ids">
+                                <span class="order-detail-item-list-title">{{items.foodName}}</span>
+                                <span class="order-detail-item-list-price">{{items.price * items.num | numFilter}}</span>
                                 <span class="order-detail-item-list-total">{{items.num}}</span>
                             </div>
                         </div>
                         <div class="footer-money">
-                            合计金额：{{order.totalNum |numFilter}}
+                            合计金额：{{order.price |numFilter}}
                         </div>
                     </div>
-                    <div class="footer-button">
+                    <!-- <div class="footer-button">
                         <el-button type="warning" size="small" plain @click="editOrder(order)">修改订单</el-button>
                         <el-button type="primary" size="small" plain @click="print">打印小票</el-button>
                         <el-button type="danger" size="small" plain @click="delOrder(order)">取消</el-button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleClose">取 消</el-button>
-                <el-button type="primary" @click="subMitAdd">结 算</el-button>
+                <el-button type="primary" @click="subMitAdd">清 台</el-button>
             </span>
-            <visible-log ref="visible" :titleTop="titleTop"></visible-log>
             <el-dialog width="40%" title="结算" :visible.sync="innerVisible" append-to-body>
                 <div class="settlement-box">
                     <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
                         <el-form-item label="桌面：" prop="name">
                             {{ tableTitle }}
                         </el-form-item>
-                        <el-form-item label="消费总金额：" prop="name">
+                        <el-form-item label="结算金额：" prop="name">
                             {{money(orderList)}}元
                         </el-form-item>
-                        <el-form-item label="收款方式：" prop="name">
+                        <!-- <el-form-item label="收款方式：" prop="name">
                             <el-radio-group v-model="saveFrom.pay" size="small">
                                 <el-radio :label="item.value" border v-for="(item, index) in dict.type.pay_type"
                                     :key="index">{{ item.label }}</el-radio>
                             </el-radio-group>
-                        </el-form-item>
+                        </el-form-item> -->
                     </el-form>
                 </div>
                 <span slot="footer" class="dialog-footer">
                     <el-button @click="settlementClose">取 消</el-button>
-                    <el-button type="primary" @click="settlement">确定收款</el-button>
+                    <el-button type="primary" @click="settlement">确定清台</el-button>
                 </span>
             </el-dialog>
         </el-dialog>
     </div>
 </template>
 <script>
+import { detailOrder, delOrder, billsOrder } from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
 export default {
     name: '',
     props: { tableTitle: '' },
@@ -79,54 +79,10 @@ export default {
             dialogVisible: false,
             innerVisible: false,
             saveFrom: {},
+            tableData:{},
             rules: {},
             ruleForm: {},
-            orderList:[
-                {
-                    totalNum:888,
-                    orderId:'12450124',
-                    nickName: this.$store.state.user.userInfo.nickName,
-                    orderList:[
-                        {
-                            name:'麻辣小龙虾',
-                            price:88,
-                            num:1
-                        },
-                        {
-                            name:'麻辣小龙虾',
-                            price:88,
-                            num:1
-                        },
-                        {
-                            name:'麻辣小龙虾',
-                            price:88,
-                            num:1
-                        }
-                    ]
-                },
-                {
-                    totalNum:420,
-                    orderId:'0121451',
-                    nickName:this.$store.state.user.userInfo.nickName,
-                    orderList:[
-                        {
-                            name:'红烧蹄膀',
-                            price:68,
-                            num:1
-                        },
-                        {
-                            name:'麻辣小龙虾',
-                            price:88,
-                            num:1
-                        },
-                        {
-                            name:'火爆腰花',
-                            price:26,
-                            num:1
-                        }
-                    ]
-                }
-            ]
+            orderList:[]
         }
     },
     created() {
@@ -145,17 +101,35 @@ export default {
     methods: {
         handleClose() {
             this.dialogVisible = false;
+            this.$parent.getFoodTable()
         },
         settlementClose() {
             this.innerVisible = false;
         },
         openVisible(data) {
             console.log(data);
+            this.tableData = data;
             this.dialogVisible = true;
+            this.getDetailOrder()
         },
         // 结算订单
         subMitAdd() {
             this.innerVisible = true
+        },
+        async getDetailOrder() {
+            let params = {
+                tableId: this.tableData.id
+            }
+            let { rows, code } = await detailOrder(params)
+            if (code == 200) {
+                if (rows.length == 0) {
+                    this.handleClose()
+                }
+                this.orderList = rows.map(item => {
+                    item.nickName = this.$store.state.user.userInfo.nickName;
+                    return item;
+                })
+            }
         },
         // 打印小票
         print() { },
@@ -183,12 +157,27 @@ export default {
         },
         // 确定收款
         settlement() {
-
+            let dataArray = this.orderList.map(item => {
+                        return item.id
+                    })
+                    let params = {
+                        ids: dataArray
+                    }
+                    console.log(params);
+                    billsOrder(params).then(res => {
+                        if (res.code == 200) {
+                            this.$message({
+                                type: 'success',
+                                message: '结算成功!'
+                            });
+                            this.handleClose()
+                        }
+                    })
         },
         money(arr) {
             var s = 0;
             arr.forEach(function (val, idx, arr) {
-                s += Number(val.totalNum)
+                s += Number(val.price)
             }, 0);
             return s;
         },

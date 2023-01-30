@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com 桌面订单统计
  * @Date: 2023-01-24 22:09:27
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-29 01:05:11
+ * @LastEditTime: 2023-01-30 23:14:10
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\orderDetail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -15,10 +15,12 @@
                     <!-- supplement -->
                     <el-button type="primary" @click="supplementMenu">加菜</el-button>
                 </div>
+
                 <div class="detail-box" v-for="(order, index) in orderList" :key="index">
-                    <div class="order-detail">
+                    <div class="order-detail" :id="order.orderNo">
                         <h3 class="order-detail-nickName">{{ order.nickName }}</h3>
                         <p style="padding: 0 10px;">订单编号：{{ order.orderNo }}</p>
+                        <span>************************</span>
                         <div class="order-detail-item">
                             <div class="order-detail-item-list">
                                 <span class="order-detail-item-list-title weight">菜品名称</span>
@@ -28,18 +30,20 @@
                             <div class="order-detail-item-list" v-for="(items, ids) in order.food" :key="ids">
                                 <span class="order-detail-item-list-title">{{ items.foodName }}</span>
                                 <span class="order-detail-item-list-price">{{
-                                    items.price * items.num | numFilter
+                                    items.price * items.num
                                 }}</span>
-                                <span class="order-detail-item-list-total">{{ items.num }}</span>
+                                <span class="order-detail-item-list-total">✖{{ items.num }}</span>
                             </div>
+
                         </div>
+                        <span>************************</span>
                         <div class="footer-money">
                             合计金额：{{ order.price | numFilter }}
                         </div>
                     </div>
                     <div class="footer-button">
                         <el-button type="warning" size="small" plain @click="editOrder(order)">修改订单</el-button>
-                        <el-button type="primary" size="small" plain @click="print">打印小票</el-button>
+                        <el-button type="primary" size="small" plain @click="printClick(order)">打印小票</el-button>
                         <el-button type="danger" size="small" plain @click="delOrder(order)">取消点餐</el-button>
                     </div>
                 </div>
@@ -80,16 +84,20 @@
 import edit from './edit.vue'
 import visibleLog from './visibleLog.vue'
 import { detailOrder, delOrder, billsOrder } from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
+import { getLodop } from '@/utils/LodopFuncs' //导入模块
+import printView from '@/components/print/print.vue'
 export default {
     name: '',
     props: { tableTitle: '' },
     components: {
         edit,
-        visibleLog
+        visibleLog,
+        printView
     },
     dicts: ['pay_type'],
     data() {
         return {
+            strHtml: null,
             titleTop: '',
             visibleTitle: '',
             dialogVisible: false,
@@ -154,7 +162,68 @@ export default {
             this.innerVisible = true
         },
         // 打印小票
-        print() { },
+        printClick(data) {
+            console.log(data);
+            let strHtml = document.getElementById(data.orderNo).innerHTML
+            let styleAdd = `
+            <style>
+            .order-detail {
+                width:400px
+    height: 100%;
+    border: 1px solid #c0c0c0;
+    color: #000;}
+    .order-detail-nickName {
+        text-align: center;
+    }
+    .order-detail-item {
+        border-top: 1px solid #c0c0c0;
+        padding: 10px  0 20px 0;
+        height: 45vh;
+        border-bottom: 1px solid #c0c0c0;
+    }
+    .order-detail-item-list {
+            padding: 0 8px;
+    }
+    .order-detail-item-list span {
+                line-height: 25px;
+                float: left;
+                display: inline-block;
+            }
+            .order-detail-item-list-title {
+                width: 90px;
+                text-align: left;
+            }
+
+            .order-detail-item-list-price {
+                width: 35px;
+                text-align: left;
+            }
+
+            .order-detail-item-list-total {
+                width: 35px;
+                text-align: right;
+            }
+            .footer-money {
+        text-align: right;
+        padding: 0 10px 60px 0;
+        line-height: 37px;
+    }
+      </style>`
+            let strHtmlPrint = styleAdd + '<body>' + strHtml + '</body>'
+            // console.log(this.strHtml);
+            this.$nextTick(() => {
+                let LODOP = getLodop()//调用getLodop获取LODOP对象
+                LODOP.PRINT_INIT("")
+                LODOP.SET_LICENSES('', '15F0BE661E7F39DF7491843CB2514F3D', '', '')
+                LODOP.SET_PRINT_PAGESIZE(3, "58mm", 60, "");
+                LODOP.SET_PRINT_STYLE("FontSize", 4);
+                LODOP.ADD_PRINT_HTM('0mm', '0mm', '100%', '100%', strHtmlPrint)
+                // LODOP.PREVIEW()
+                LODOP.PRINT()
+            })
+
+            console.log();
+        },
         // 修改订单
         editOrder(data) {
             this.titleTop = '修改订单'
@@ -227,7 +296,7 @@ export default {
     max-height: 615px;
 
     .detail-box {
-        width: 24%;
+        width: 210px;
         float: left;
         margin: 0 10px 10px 0;
 
@@ -257,30 +326,30 @@ export default {
     &-item {
         border-top: 1px solid #c0c0c0;
         padding: 10px 0;
-        height: 45vh;
+        min-height: 30vh;
         border-bottom: 1px solid #c0c0c0;
 
         &-list {
-            display: flex;
             padding: 0 8px;
-            justify-content: space-between;
 
             span {
                 line-height: 25px;
+                // float: left;
+                display: inline-block;
             }
 
             &-title {
-                width: 50%;
+                width: 90px;
                 text-align: left;
             }
 
             &-price {
-                width: 25%;
+                width: 70px;
                 text-align: left;
             }
 
             &-total {
-                width: 25%;
+                width: 30px;
                 text-align: left;
             }
         }
@@ -299,6 +368,10 @@ export default {
 
 ::v-deep .el-dialog__body {
     position: relative;
+}
+
+::v-deep .el-button--small {
+    padding: 8px 4px;
 }
 
 .addBtn {

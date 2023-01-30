@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com 粉面点餐
  * @Date: 2023-01-23 15:35:14
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-29 01:23:08
+ * @LastEditTime: 2023-01-30 23:32:46
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\FlourOrderIMgr\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,7 +11,7 @@
         <div class="log-Box">
             <div class="left-box">
                 <h4>所点订单</h4>
-                <div class="order-list">
+                <div class="order-list" id="orderItemOr">
                     <div v-if="settlementList.length > 0">
                         <div class="item-order" v-for="(item, index) in settlementList" :key="index">
                             <span class="order-title">{{ item.name }}</span>
@@ -67,6 +67,7 @@
 <script>
 import { getFoodClass, listFood } from '@/api/dishesMgr/dishesIMgr'
 import { addOrder } from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
+import { getLodop } from '@/utils/LodopFuncs' //导入模块
 export default {
     name: 'index',
     data() {
@@ -104,6 +105,7 @@ export default {
             this.settlementList = [];
             this.ContNum = this.sum(this.settlementList);
             this.moneyNum = this.money(this.settlementList);
+            this.getListFood();
         },
         // 获取菜品类别
         async getFoodClass() {
@@ -161,6 +163,10 @@ export default {
         },
         subMitAdd() {
             console.log(this.settlementList);
+            if (this.settlementList.length == 0) {
+                this.$message.error('请选择菜品下单！');
+                return false
+            }
             let paramsData = this.settlementList.map(item => {
                 let data = {}
                 data.foodId = item.id;
@@ -177,10 +183,95 @@ export default {
                 status: '2',
                 billTime: this.parseTime(newTime)
             }
+
             console.log(params);
+            let setHtml = this.settlementList.map(item => {
+                return `<div class="order-detail-item-list">
+                                <span class="order-detail-item-list-title">${item.name}</span>
+                                <span class="order-detail-item-list-price">${item.price * item.num
+                    }</span>
+                                <span class="order-detail-item-list-total">✖${item.num}</span>
+                            </div>`
+            })
+
+
             addOrder(params).then(res => {
                 if (res.code == 200) {
+                    console.log(res);
                     this.$message.success('下单成功！');
+
+                    let strHtml = `<div class="order-detail" :id="order.orderNo">
+                        <h3 class="order-detail-nickName">${this.$store.state.user.userInfo.nickName}</h3>
+                        <p style="padding: 0 10px;">订单编号：${res.data}</p>
+                        <span>************************</span>
+                        <div class="order-detail-item">
+                            <div class="order-detail-item-list">
+                                <span class="order-detail-item-list-title weight">菜品名称</span>
+                                <span class="order-detail-item-list-price weight">金额</span>
+                                <span class="order-detail-item-list-total weight">数量</span>
+                            </div>
+                            ${setHtml}
+                        </div>
+                        <span>************************</span>
+                        <div class="footer-money">
+                            合计金额：${this.moneyNum}
+                        </div>
+                    </div>`
+                    let styleAdd = `
+            <style>
+            .order-detail {
+                width:400px
+    height: 100%;
+    border: 1px solid #c0c0c0;
+    color: #000;}
+    .order-detail-nickName {
+        text-align: center;
+    }
+    .order-detail-item {
+        border-top: 1px solid #c0c0c0;
+        padding: 10px  0 20px 0;
+        height: 45vh;
+        border-bottom: 1px solid #c0c0c0;
+    }
+    .order-detail-item-list {
+            padding: 0 8px;
+    }
+    .order-detail-item-list span {
+                line-height: 25px;
+                float: left;
+                display: inline-block;
+            }
+            .order-detail-item-list-title {
+                width: 90px;
+                text-align: left;
+            }
+
+            .order-detail-item-list-price {
+                width: 35px;
+                text-align: left;
+            }
+
+            .order-detail-item-list-total {
+                width: 35px;
+                text-align: right;
+            }
+            .footer-money {
+        text-align: right;
+        padding: 0 10px 60px 0;
+        line-height: 37px;
+    }
+      </style>`
+                    let strHtmlPrint = styleAdd + '<body>' + strHtml + '</body>'
+                    this.$nextTick(() => {
+                        let LODOP = getLodop()//调用getLodop获取LODOP对象
+                        LODOP.PRINT_INIT("")
+                        LODOP.SET_LICENSES('', '15F0BE661E7F39DF7491843CB2514F3D', '', '')
+                        LODOP.SET_PRINT_PAGESIZE(3, "58mm", 60, "");
+                        LODOP.SET_PRINT_STYLE("FontSize", 4);
+                        LODOP.ADD_PRINT_HTM('0mm', '0mm', '100%', '100%', strHtmlPrint)
+                        // LODOP.PREVIEW()
+                        LODOP.PRINT()
+                    })
                     this.openVisible()
                 }
             })

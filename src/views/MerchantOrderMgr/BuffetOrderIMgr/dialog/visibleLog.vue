@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-23 18:19:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-24 23:27:51
+ * @LastEditTime: 2023-01-30 23:08:18
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\visibleLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -63,7 +63,7 @@
 </template>
 <script>
 import { getFoodClass, listFood } from '@/api/dishesMgr/dishesIMgr'
-
+import { addOrder } from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
 export default {
 
     name: 'visibleLog',
@@ -105,12 +105,15 @@ export default {
             this.classData = {};
             this.settlementList = [];
             console.log(data);
+            if (data) {
+                this.saveForm = data
+            }
             this.getFoodClass();
             this.getListFood();
         },
         handleClose() {
             this.dialogVisible = false;
-            // this.$parent.getListArea()
+            this.$parent.getFoodTable()
         },
 
         // 获取菜品类别
@@ -170,6 +173,30 @@ export default {
         },
         subMitAdd() {
             console.log(this.settlementList);
+            if (this.settlementList.length == 0) {
+                this.$message.error('请选择菜品下单！');
+                return false
+            }
+            let paramsData = this.settlementList.map(item => {
+                let data = {}
+                data.foodId = item.id;
+                data.num = item.num
+                return data
+            })
+            let params = {
+                tableId: this.saveForm.id,
+                tableName: this.saveForm.name,
+                price: this.moneyNum,
+                amount: this.moneyNum,
+                discountAmount: 0,
+                food: paramsData
+            }
+            addOrder(params).then(res => {
+                if (res.code == 200) {
+                    this.$message.success('下单成功！');
+                    this.handleClose()
+                }
+            })
         },
         // 数相加
         sum(arr) {

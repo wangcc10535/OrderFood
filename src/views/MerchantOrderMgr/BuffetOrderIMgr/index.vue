@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com  自助餐点餐
  * @Date: 2023-01-23 15:35:22
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-25 01:27:07
+ * @LastEditTime: 2023-01-30 23:00:21
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\BuffetOrderIMgr\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -11,17 +11,17 @@
         <div class="merchan-list">
             <div class="list-item" v-for="(item, index) in desktopList" :key="index">
                 <div class="title-top">
-                    <span>{{ item.title }}</span>
+                    <span>{{ item.areaName }}</span>
                 </div>
                 <div class="desktop-list">
-                    <div v-for="(its, index) in item.child" :key="index" @click="addMerchan(item,its)"
-                        :class="its.status == 0 ? 'item-box' : 'item-box item-box-ing'">
-                        <div :class="its.status == 0 ? 'top-item' : 'top-item top-item-ing'">
-                            {{ its.deskTitle }}
+                    <div v-for="(its, index) in item.foodTableVos" :key="index" @click="addMerchan(item,its)"
+                        :class="its.enable == 0 ? 'item-box' : 'item-box item-box-ing'">
+                        <div :class="its.enable == 0 ? 'top-item' : 'top-item top-item-ing'">
+                            {{ its.name }}
                         </div>
-                        <div :class="its.status == 0 ? 'status-span' : 'status-span status-span-ing'">
-                            <span v-if="its.status == 0">空闲</span>
-                            <span v-if="its.status == 1">{{ its.money }}</span>
+                        <div :class="its.enable == 0 ? 'status-span' : 'status-span status-span-ing'">
+                            <span v-if="its.enable == 0">空闲</span>
+                            <span v-if="its.enable == 1">{{ its.price | numFilter }}</span>
                         </div>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
 <script>
 import visibleLog from './dialog/visibleLog.vue'
 import orderDetail from './dialog/orderDetail.vue'
-import { listArea, delArea, listTable, delTable } from '@/api/desktopMgr/desktopMgr'
+import {foodTableList} from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
 export default {
     name: 'index',
     components: {
@@ -51,103 +51,40 @@ export default {
         return {
             titleTop: '',
             tableName: '',
-            desktopList: [
-                {
-                    id: 1,
-                    title: '一楼A区',
-                    child: [
-                        {
-                            id: 1,
-                            deskTitle: '1号桌',
-                            status: 0,
-                            money: null
-                        },
-                        {
-                            id: 2,
-                            deskTitle: '2号桌',
-                            status: 1,
-                            money: '199.0'
-                        },
-                        {
-                            id: 3,
-                            deskTitle: '2号桌',
-                            status: 1,
-                            money: '199.0'
-                        }
-                    ]
-                },
-                {
-                    id: 2,
-                    title: '二楼B区',
-                    child: [
-                        {
-                            id: 1,
-                            deskTitle: '牡丹房',
-                            status: 0,
-                            money: null
-                        },
-                        {
-                            id: 2,
-                            deskTitle: '菊花厅',
-                            status: 1,
-                            money: '899.0'
-                        }
-                    ]
-                },
-                {
-                    id: 2,
-                    title: '二楼B区',
-                    child: [
-                        {
-                            id: 1,
-                            deskTitle: '牡丹房',
-                            status: 0,
-                            money: null
-                        },
-                        {
-                            id: 2,
-                            deskTitle: '菊花厅',
-                            status: 1,
-                            money: '899.0'
-                        }
-                    ]
-                },
-                {
-                    id: 2,
-                    title: '二楼B区',
-                    child: [
-                        {
-                            id: 1,
-                            deskTitle: '牡丹房',
-                            status: 0,
-                            money: null
-                        },
-                        {
-                            id: 2,
-                            deskTitle: '菊花厅',
-                            status: 1,
-                            money: '899.0'
-                        }
-                    ]
-                },
-
-            ]
+            desktopList: []
         }
     },
     created() {
+        this.getFoodTable();
     },
     mounted() {
     },
+    filters: {
+        numFilter(value) {
+            // 截取当前数据到小数点后三位
+            let tempVal = parseFloat(value).toFixed(3)
+            let realVal = tempVal.substring(0, tempVal.length - 1)
+            return realVal
+        }
+    },
     methods: {
         addMerchan(item,its) {
-            if (its.status == 0) {
-                this.titleTop = '开台点餐'
+            if (its.enable == 0) {
+                this.titleTop = '开台'
                 this.$refs.visible.openVisible(its)
             }else {
-                this.tableName = item.title+ '-' + its.deskTitle
+                this.tableName = item.areaName+ '-' + its.name
                 this.$refs.orderDetail.openVisible(its)
             }
 
+        },
+        // 查询桌面
+        async getFoodTable() {
+            let {code,rows} = await foodTableList();
+            if (code == 200) {
+                console.log(rows);
+                this.desktopList = rows;
+            }
         }
     }
 };
