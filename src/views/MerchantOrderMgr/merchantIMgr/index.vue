@@ -2,19 +2,19 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-06 22:20:34
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-28 01:55:29
+ * @LastEditTime: 2023-02-02 15:29:08
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
 <template>
     <div class="merchan-box">
-        <div class="merchan-list">
+        <div class="merchan-list" v-if="desktopList.length > 0">
             <div class="list-item" v-for="(item, index) in desktopList" :key="index">
                 <div class="title-top">
                     <span>{{ item.areaName }}</span>
                 </div>
                 <div class="desktop-list">
-                    <div v-for="(its, index) in item.foodTableVos" :key="index" @click="addMerchan(item,its)"
+                    <div v-for="(its, index) in item.foodTableVos" :key="index" @click="addMerchan(item, its)"
                         :class="its.enable == 0 ? 'item-box' : 'item-box item-box-ing'">
                         <div :class="its.enable == 0 ? 'top-item' : 'top-item top-item-ing'">
                             {{ its.name }}
@@ -27,6 +27,9 @@
                 </div>
             </div>
         </div>
+        <el-empty v-else description="暂无桌面，您需要到后台管理新增桌面">
+            <el-link type="primary" @click="linkQR">点击跳转新增桌面</el-link>
+        </el-empty>
         <div class="home">
             <router-link to="/">
                 <el-button type="primary" icon="el-icon-s-home" circle></el-button>
@@ -40,7 +43,7 @@
 <script>
 import visibleLog from './dialog/visibleLog.vue'
 import orderDetail from './dialog/orderDetail.vue'
-import {foodTableList} from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
+import { foodTableList } from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
 export default {
     name: 'index',
     components: {
@@ -68,23 +71,33 @@ export default {
         }
     },
     methods: {
-        addMerchan(item,its) {
+        addMerchan(item, its) {
             if (its.enable == 0) {
                 this.titleTop = '开台点餐'
                 this.$refs.visible.openVisible(its)
-            }else {
-                this.tableName = item.areaName+ '-' + its.name
+            } else {
+                this.tableName = item.areaName + '-' + its.name
                 this.$refs.orderDetail.openVisible(its)
             }
 
         },
         // 查询桌面
         async getFoodTable() {
-            let {code,rows} = await foodTableList();
+            const loading = this.$loading({
+                lock: true,
+                text: '加载中请稍等~',
+                spinner: 'el-icon-loading',
+                background: 'rgba(0, 0, 0, 0.7)'
+            });
+            let { code, rows } = await foodTableList();
             if (code == 200) {
                 console.log(rows);
                 this.desktopList = rows;
+                loading.close();
             }
+        },
+        linkQR() {
+            this.$router.push({ path: '/desktopIMgr/QRcodeMgrIndex' })
         }
     }
 };

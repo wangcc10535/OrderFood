@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-06 13:37:00
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-27 23:52:40
+ * @LastEditTime: 2023-02-03 17:47:36
  * @FilePath: \orderfood\src\views\desktopIMgr\QRcodeMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -47,17 +47,21 @@
         </div>
         <area-view ref="areaView" :titleTop="titleTop"></area-view>
         <desk-view ref="deskView" :titleLog="titleLog"></desk-view>
+        <download-qr ref="downloadQr"></download-qr>
     </div>
 </template>
 <script>
 import { listArea, delArea, listTable, delTable } from '@/api/desktopMgr/desktopMgr'
 import areaView from './dialog/RegionDesk.vue'
 import deskView from './dialog/tableDesk.vue'
+import QRCode from 'qrcodejs2'
+import downloadQr from './dialog/donloadQR.vue'
 export default {
     name: 'QRcodeMgrIndex',
     components: {
         areaView,
-        deskView
+        deskView,
+        downloadQr
     },
     data() {
         return {
@@ -83,8 +87,8 @@ export default {
 
     },
     methods: {
-        async ExportQRcode() {
-
+        ExportQRcode() {
+            this.$refs.downloadQr.openVisible(this.ArrayList)
         },
         // 查询桌面
         async getListTable() {

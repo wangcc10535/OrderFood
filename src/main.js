@@ -49,6 +49,11 @@ import DictData from '@/components/DictData'
 import Viewer from "v-viewer";
 import "viewerjs/dist/viewer.css";
 
+import vueToPdf from 'vue-to-pdf';
+import VueEasyPrinter from 'vue-easy-printer';
+Vue.use(vueToPdf);
+Vue.use(VueEasyPrinter);
+
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts
 Vue.prototype.getConfigKey = getConfigKey

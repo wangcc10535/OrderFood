@@ -186,4 +186,4 @@ function getLodop(oOBJECT, oEMBED) {
     }
 }
 
-export { getLodop }
+export { getLodop,checkOrTryHttp }
