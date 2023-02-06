@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:49:42
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-08 14:18:07
+ * @LastEditTime: 2023-02-06 14:56:09
  * @FilePath: \orderfood\src\views\datareportsIMgr\reportMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,18 +12,18 @@
             <div class="topSearch base-background top-box" ref="element">
                 <div class="topSearch-base magin-base" v-if="activeName == 'day'">
                     <span>时间：</span>
-                    <el-date-picker v-model="searchFrom.value1" value-format="yyyy-MM-dd" type="daterange"
+                    <el-date-picker v-model="searchFrom.day" value-format="yyyy-MM-dd" type="daterange"
                         range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
                     </el-date-picker>
                 </div>
                 <div class="topSearch-base magin-base" v-if="activeName == 'month'">
                     <span>时间：</span>
-                    <el-date-picker v-model="searchFrom.value2" value-format="yyyy-MM" type="month" placeholder="选择月">
+                    <el-date-picker v-model="searchFrom.month" value-format="yyyy-MM" type="month" placeholder="选择月">
                     </el-date-picker>
                 </div>
                 <div class="topSearch-base magin-base" v-if="activeName == 'year'">
                     <span>时间：</span>
-                    <el-date-picker v-model="searchFrom.value3"  value-format="yyyy" type="year" placeholder="选择年">
+                    <el-date-picker v-model="searchFrom.year" value-format="yyyy" type="year" placeholder="选择年">
                     </el-date-picker>
                 </div>
                 <el-button class="magin-base" type="primary" size="mini" @click="searchQuery">搜索</el-button>
@@ -55,6 +55,7 @@
     </div>
 </template>
 <script>
+import { DayOrder, MonthOrder, YearOrder } from '@/api/datareportsIMgr/reportMgrIndex'
 export default {
     name: 'reportMgrIndex',
     data() {
@@ -88,6 +89,18 @@ export default {
         }
     },
     created() {
+        var date = new Date();
+        date.setDate(1);
+        var dateStart = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+        this.searchFrom.day = [dateStart, this.parseTime(new Date(), '{y}-{m}-{d}')];
+        this.searchFrom.month = this.parseTime(new Date(), '{y}-{m}');
+        if (this.activeName == 'day') {
+            this.getDayOrder()
+        } else if (this.activeName == 'month') {
+            this.getMonthOrder()
+        } else if (this.activeName == 'year') {
+            this.getYearOrder()
+        }
     },
     mounted() {
         this.$nextTick(() => {
@@ -97,14 +110,56 @@ export default {
     methods: {
         searchQuery() {
             console.log(this.searchFrom);
+            if (this.activeName == 'day') {
+                this.getDayOrder()
+            } else if (this.activeName == 'month') {
+                this.getMonthOrder()
+            } else if (this.activeName == 'year') {
+                this.getYearOrder()
+            }
         },
         resetQuery() {
             this.searchFrom = {};
             this.getList()
         },
         getList() { },
-        handleClick(tab, event) {
-            console.log(tab, event);
+        // 获取日报表
+        getDayOrder() {
+            let params = {
+                starDate: this.searchFrom.day[0],
+                endDate: this.searchFrom.day[1]
+            }
+            DayOrder(params).then(res => {
+                if (res.code == 200) {
+                    console.log(res);
+                }
+            })
+        },
+        // 获取月报表
+        getMonthOrder() {
+            MonthOrder().then(res => {
+                if (res.code == 200) {
+                    console.log(res);
+                }
+            })
+        },
+        // 获取年报表
+        getYearOrder() {
+            YearOrder().then(res => {
+                if (res.code == 200) {
+                    console.log(res);
+                }
+            })
+        },
+        handleClick(event) {
+            console.log(event.name);
+            if (event.name == 'day') {
+                this.getDayOrder()
+            } else if (event.name == 'month') {
+                this.getMonthOrder()
+            } else if (event.name == 'year') {
+                this.getYearOrder()
+            }
         }
     }
 };

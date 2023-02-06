@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:31:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-29 01:22:22
+ * @LastEditTime: 2023-02-06 16:39:46
  * @FilePath: \orderfood\src\views\ordersIMgr\ordersMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -22,7 +22,7 @@
             </div>
             <div class="topSearch-base magin-base">
                 <span>查询日期：</span>
-                <el-date-picker v-model="searchFrom.value2" type="daterange" value-format="yyyy-MM-dd" align="right"
+                <el-date-picker v-model="dateValue" type="daterange" value-format="yyyy-MM-dd" align="right"
                     unlink-panels range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
                     :picker-options="pickerOptions">
                 </el-date-picker>
@@ -41,14 +41,16 @@
                         <template slot-scope="{row}">
                             <span v-if="row.tableId < 0">-</span>
                             <span v-else>{{ row.tableName }}</span>
-                            </template>
+                        </template>
                     </el-table-column>
                     <el-table-column label="点餐菜品" align="center" width="180">
                         <template slot-scope="{row}">
                             <div class="listRows">
-                                <span v-for="(item,index) in row.food" :key="index">{{ item.foodName }}X{{ item.num }}</span>
+                                <span v-for="(item, index) in row.food" :key="index">{{ item.foodName }}X{{
+                                    item.num
+                                }}</span>
                             </div>
-                            </template>
+                        </template>
                     </el-table-column>
                     <el-table-column prop="createTime" label="开台时间" align="center"></el-table-column>
                     <el-table-column prop="billTime" label="结算时间" align="center"></el-table-column>
@@ -73,10 +75,10 @@
                         <template slot-scope="scope">
                             <el-button @click="detail(scope.row)" size="small" class="link-m"
                                 type="primary">查看</el-button>
-                            <el-button @click="settlement(scope.row)" size="small" class="link-m"
-                                type="warning" v-if="scope.row.status == 1">结算</el-button>
+                            <el-button @click="settlement(scope.row)" size="small" class="link-m" type="warning"
+                                v-if="scope.row.status == 1">结算</el-button>
                             <el-popconfirm confirm-button-text="是的" cancel-button-text="不用了"
-                                @confirm="compDelete(scope.row)" title="确定删除吗？">
+                                @confirm="compDelete(scope.row)" title="确定删除吗？" v-hasPermi="['system:order:delete']">
                                 <el-button type="danger" size="small" class="link-m" slot="reference">删除</el-button>
                             </el-popconfirm>
                         </template>
@@ -102,7 +104,7 @@ import billLog from './dialog/billLog.vue'
 export default {
     name: 'ordersMgrIndex',
     dicts: ['order_status', 'pay_type'],
-    components: { addLog, detail,billLog },
+    components: { addLog, detail, billLog },
     data() {
         return {
             titleTop: '',
@@ -133,6 +135,7 @@ export default {
                     }
                 }]
             },
+            dateValue:[],
             searchFrom: {},
             tableData: [],
             total: 0,
@@ -164,6 +167,11 @@ export default {
             this.$refs.addOrEdit.openVisible()
         },
         async getList() {
+
+            if (this.dateValue) {
+                this.searchFrom.starDate = this.dateValue[0]
+                this.searchFrom.endDate = this.dateValue[1]
+            }
             let { total, code, rows } = await listOrder({ ...this.searchFrom, ...this.queryParams });
             if (code == 200) {
                 this.total = total;
@@ -180,7 +188,7 @@ export default {
         detail(row) {
             this.$refs.detail.openDrawer(row)
         },
-        settlement(row) { 
+        settlement(row) {
             this.$refs.billLog.openVisible(row)
         },
         compDelete(row) {

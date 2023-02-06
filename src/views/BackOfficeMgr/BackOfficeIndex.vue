@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-06 18:13:50
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-15 02:16:44
+ * @LastEditTime: 2023-02-06 16:29:37
  * @FilePath: \orderfood\src\views\BackOfficeMgr\BackOfficeIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -38,6 +38,7 @@
                                             :decimals="String(boardObj.data[item.key]).indexOf('.') > -1 ? 2 : 0">
                                         </countTo>
                                         <span v-else>0</span>
+                                        <span v-if="item.key == 'salesVolume'">元</span>
                                     </p>
                                     <div class="box-card-body-item-proportion">
                                         <div class="bcbip-item">
@@ -79,7 +80,8 @@
                         </div>
                     </div>
                     <div class="chart-content">
-                        <el-table :data="salesRankingObj.list" border height="718px">
+                        <el-table :data="salesRankingObj.list" border height="768px">
+                            <el-table-column type="index" label="排名" width="80" align="center"></el-table-column>
                             <el-table-column v-for="(header, hIndex) in salesRankingObj.header" :key="hIndex"
                                 :prop="header.prop" :label="header.label" :width="header.width" :align="header.align"
                                 :fixed="header.fixed" :show-overflow-tooltip="true">
@@ -101,6 +103,7 @@
 <script>
 import LineChart from './LineChart';
 import countTo from 'vue-count-to';
+import { SalesRanking, SalesVolume, getTotal } from '@/api/BackOfficeMgr/BackOfficeIndex'
 export default {
     name: 'BackOfficeIndex',
     components: { LineChart, countTo },
@@ -118,11 +121,11 @@ export default {
                 list: [
                     {
                         title: '销售额',
-                        key: 'matMon'
+                        key: 'salesVolume'
                     },
                     {
                         title: '订单量',
-                        key: 'matQuan'
+                        key: 'orderQuantity'
                     }
                 ]
             },
@@ -150,24 +153,76 @@ export default {
                     pageSize: 20
                 },
                 header: [
-                    { prop: 'ranking', label: '排名', width: 80, align: 'center' },
-                    { prop: 'matName', label: '菜品名称', align: 'center' },
-                    { prop: 'matCode', label: '销售量', align: 'center' },
-                    { prop: 'matMon', label: '销售额', align: 'center' }
+                    { prop: 'foodName', label: '菜品名称', align: 'center' },
+                    { prop: 'num', label: '销售量', align: 'center' },
+                    { prop: 'price', label: '销售额', align: 'center' }
                 ],
                 list: []
-            }
+            },
+            deptId:''
         }
     },
     created() {
         this.boardObj.dateRange = [this.parseTime(new Date(), '{y}-{m}-{d}'), this.parseTime(new Date(), '{y}-{m}-{d}')];
         this.revenueObj.month = this.parseTime(new Date(), '{y}-{m}');
+        this.deptId = this.$store.state.user.userInfo.deptId
+        this.getSalesRanking()
+        this.getSalesVolume()
+        this.getTotal()
+
     },
     mounted() {
     },
     methods: {
-        getOverviewBoardData() { },
-        getRevenueTrendsData() { }
+        // 查询总览看板
+        getOverviewBoardData() {
+            this.getTotal()
+        },
+        // 营收趋势
+        getRevenueTrendsData() {
+            this.getSalesVolume()
+        },
+        // 查看菜品排行
+        getSalesRanking() {
+            console.log(this.boardObj);
+            SalesRanking().then(res => {
+                if (res.code == 200) {
+                    console.log(res);
+                    this.salesRankingObj.list = res.rows;
+                }
+            })
+        },
+        // 营收趋势查询
+        getSalesVolume() {
+            let params = {
+                starDate:this.revenueObj.month
+            }
+            SalesVolume(params).then(res => {
+                if (res.code == 200) {
+                    console.log(res);
+                    // xAxisData  billTime
+                    this.revenueObj.lineChartData.data = res.rows.map(item =>{
+                        return item.price
+                    });
+                    this.revenueObj.lineChartData.xAxisData = res.rows.map(item =>{
+                        return item.billTime
+                    });
+                }
+            })
+        },
+        getTotal() {
+            console.log(this.boardObj.dateRange);
+            let parms = {
+                starDate:this.boardObj.dateRange[0],
+                endDate:this.boardObj.dateRange[1]
+            }
+            getTotal(parms).then(res => {
+                if (res.code == 200) {
+                    console.log(res);
+                    this.boardObj.data = res.data;
+                }
+            })
+        }
     }
 };
 </script>
@@ -289,33 +344,37 @@ export default {
         }
     }
 }
+
 .box-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  .header-right {
     display: flex;
-    &-date {
-      width: 300px;
-      margin-left: 30px;
+    justify-content: space-between;
+    align-items: center;
+
+    .header-right {
+        display: flex;
+
+        &-date {
+            width: 300px;
+            margin-left: 30px;
+        }
     }
-  }
 }
 
 .box-card-body-item {
-  padding: 30px 0;
-  text-align: center;
-  background-color: #fff;
-  border: solid 1px #e6ebf5;
-  border-radius: 5px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  margin: 10px 0;
-  p {
-    color: #1890ff;
-    font-size: 24px;
+    padding: 30px 0;
+    text-align: center;
+    background-color: #fff;
+    border: solid 1px #e6ebf5;
+    border-radius: 5px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
     margin: 10px 0;
-    padding: 0;
-    font-weight: 700;
-  }
+
+    p {
+        color: #1890ff;
+        font-size: 24px;
+        margin: 10px 0;
+        padding: 0;
+        font-weight: 700;
+    }
 }
 </style>
