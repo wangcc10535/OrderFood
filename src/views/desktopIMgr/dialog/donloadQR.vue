@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com  二维码导出
  * @Date: 2023-02-03 17:39:52
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-06 00:22:05
+ * @LastEditTime: 2023-02-06 10:43:03
  * @FilePath: \orderfood\src\views\desktopIMgr\donloadQR.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -23,8 +23,6 @@
 </template>
 <script>
 import QRCode from 'qrcodejs2'
-import JSZip from "jszip";
-import FileSaver from "file-saver";
 export default {
     name: 'donloadQR',
     data() {
