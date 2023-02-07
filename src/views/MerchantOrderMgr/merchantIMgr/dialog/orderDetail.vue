@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com 桌面订单统计
  * @Date: 2023-01-24 22:09:27
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-30 23:14:10
+ * @LastEditTime: 2023-02-08 01:15:25
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\orderDetail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -138,23 +138,24 @@ export default {
             this.dialogVisible = true;
             this.getDetailOrder();
         },
-        async getDetailOrder() {
+        getDetailOrder() {
             let params = {
                 tableId: this.tableData.id
             }
-            let { rows, code } = await detailOrder(params)
-            if (code == 200) {
-                if (rows.length == 0) {
-                    this.handleClose()
+            detailOrder(params).then(res => {
+                if (res.code == 200) {
+                    if (res.rows.length == 0) {
+                        this.handleClose()
+                    }
+                    this.orderList = res.rows.map(item => {
+                        item.nickName = this.$store.state.user.userInfo.nickName;
+                        return item;
+                    })
                 }
-                this.orderList = rows.map(item => {
-                    item.nickName = this.$store.state.user.userInfo.nickName;
-                    return item;
-                })
-            }
+            })
+
         },
-        getDetail(data) {
-            console.log(data);
+        getDetail() {
             this.getDetailOrder()
         },
         // 结算订单

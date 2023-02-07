@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:20:04
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-03 14:55:14
+ * @LastEditTime: 2023-02-07 15:14:36
  * @FilePath: \orderfood\src\views\dishesIMgr\dishesMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -42,9 +42,9 @@
                         </template>
                     </el-table-column>
                     <el-table-column prop="enable" label="菜品分类" align="center">
-                        <!-- <template slot-scope="{row}">
-                            <span>{{dishesClassify[row.enable].name }}</span>
-                        </template> -->
+                        <template slot-scope="{row}">
+                            {{ selectType(dishesClassify,row.foodTypeId ) }}
+                        </template>
                     </el-table-column>
                     <el-table-column label="状态" align="center">
                         <template slot-scope="{row}">
@@ -83,7 +83,7 @@ import { listFood, delFood, getFoodClass } from '@/api/dishesMgr/dishesIMgr'
 import addLog from './dialog/addLog.vue'
 export default {
     name: 'dishesMgrIndex',
-    dicts: ['enable_status','order_status'],
+    dicts: ['enable_status', 'order_status'],
     components: {
         addLog
     },
@@ -164,7 +164,7 @@ export default {
             if (this.searchFrom.enable == '99') {
                 delete this.searchFrom.enable
             }
-            let { code, rows,total } = await listFood({ ...this.searchFrom, ...this.queryParams });
+            let { code, rows, total } = await listFood({ ...this.searchFrom, ...this.queryParams });
             if (code == 200) {
                 this.tableData = rows;
                 this.total = total;
@@ -174,8 +174,25 @@ export default {
         async getFoodClass() {
             let { code, rows } = await getFoodClass();
             if (code == 200) {
-                this.dishesClassify = rows
+                console.log(rows);
+                this.dishesClassify = rows;
             }
+        },
+        selectType(datas, value) {
+            if (value === undefined) {
+                return "";
+            }
+            var actions = [];
+            Object.keys(datas).some((key) => {
+                if (datas[key].id == ('' + value)) {
+                    actions.push(datas[key].name);
+                    return true;
+                }
+            })
+            if (actions.length === 0) {
+                actions.push(value);
+            }
+            return actions.join('');
         },
         handleClick(tab, event) {
             this.searchFrom.enable = tab.name;

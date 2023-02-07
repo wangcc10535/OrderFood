@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:31:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-06 16:39:46
+ * @LastEditTime: 2023-02-07 21:09:35
  * @FilePath: \orderfood\src\views\ordersIMgr\ordersMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -160,6 +160,7 @@ export default {
         },
         resetQuery() {
             this.searchFrom = {};
+            this.dateValue = []
             this.getList()
         },
         addOrders() {

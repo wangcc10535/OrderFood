@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-23 18:19:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-28 02:22:18
+ * @LastEditTime: 2023-02-08 01:14:15
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\visibleLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -105,7 +105,6 @@ export default {
             this.dialogVisible = true;
             this.classData = {};
             this.settlementList = [];
-            console.log(data);
             if (data.orderNo) {
                 this.editData = data
                 this.settlementList = data.food.map(item => {
@@ -182,7 +181,7 @@ export default {
             // console.log(this.settlementList);
             this.paramsData = this.settlementList.map(item => {
                 let data = {}
-                data.foodId = item.id;
+                data.foodId = item.foodId;
                 data.num = item.num
                 return data
             })
@@ -196,7 +195,7 @@ export default {
                 id: this.editData.id
             }
             console.log(params);
-            editOrder().then(res => {
+            editOrder(params).then(res => {
                 if (res.code == 200) {
                     this.$message.success('修改成功！');
                     this.handleClose()
