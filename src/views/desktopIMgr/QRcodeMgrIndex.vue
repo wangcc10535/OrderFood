@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-06 13:37:00
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-03 17:47:36
+ * @LastEditTime: 2023-02-08 17:40:54
  * @FilePath: \orderfood\src\views\desktopIMgr\QRcodeMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -19,12 +19,13 @@
                             @click="ExportQRcode">一键导出二维码</el-button>
                     </div>
                 </div>
-                <div class="center-list">
+                <div class="center-list" v-if="ArrayList.length > 0">
                     <div class="list_item" v-for="(item, index) in ArrayList" :key="index">
                         <div class="region_title">
                             {{ item.areaName }}
                             <el-link type="primary" @click="editRegionDesk(item)">修改</el-link>
-                            <el-link type="danger" style="margin-left:10px;" @click="regionDesk(item)" v-if="item.foodTableVos.length == 0">删除</el-link>
+                            <el-link type="danger" style="margin-left:10px;" @click="regionDesk(item)"
+                                v-if="item.foodTableVos.length == 0">删除</el-link>
                         </div>
                         <div class="desktop_list">
                             <div class="desktop_item" v-for="(ites, index) in item.foodTableVos" :key="index">
@@ -32,7 +33,7 @@
                                     {{ ites.name }}
                                 </div>
                                 <div class="QR-img">
-                                    <el-link type="primary" @click="editDesk(item,ites)">修改</el-link>
+                                    <el-link type="primary" @click="editDesk(item, ites)">修改</el-link>
                                     <el-link type="danger" @click="delDesk(ites)">删除</el-link>
                                     <img src="@/assets/images/qr_code.png" alt="">
                                 </div>
@@ -43,6 +44,7 @@
                         </div>
                     </div>
                 </div>
+                <el-empty v-else description="暂无桌面，请新增区域后增加桌面"></el-empty>
             </div>
         </div>
         <area-view ref="areaView" :titleTop="titleTop"></area-view>
@@ -92,8 +94,10 @@ export default {
         },
         // 查询桌面
         async getListTable() {
+
             let { code, rows } = await listTable();
             if (code == 200) {
+
                 this.desktopList = [];
                 rows.forEach(element => {
                     let data = {}
@@ -116,9 +120,9 @@ export default {
             this.$refs.deskView.openVisible(item)
         },
         // 修改桌面
-        editDesk(item,its) {
+        editDesk(item, its) {
             this.titleLog = '修改桌面'
-            this.$refs.deskView.openVisible(item,its)
+            this.$refs.deskView.openVisible(item, its)
         },
         // 删除桌面
         delDesk(item) {
@@ -143,9 +147,16 @@ export default {
 
         // 查询区域
         async getListArea() {
+            const loading = this.$loading({
+                lock: true,
+                text: '加载中请稍等~',
+                spinner: 'el-icon-loading',
+                background: 'rgba(0, 0, 0, 0.7)'
+            });
             let { code, rows } = await listArea();
             if (code == 200) {
-                this.ArrayList =  rows
+                loading.close();
+                this.ArrayList = rows
                 // this.areaList = [];
                 // this.dataList = [];
                 // rows.forEach(element => {
