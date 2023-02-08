@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com 粉面点餐
  * @Date: 2023-01-23 15:35:14
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-30 23:32:46
+ * @LastEditTime: 2023-02-08 10:41:04
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\FlourOrderIMgr\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,13 +12,19 @@
             <div class="left-box">
                 <h4>所点订单</h4>
                 <div class="order-list" id="orderItemOr">
+                    <div class="item-order">
+                        <span class="order-title">菜品名称</span>
+                        <span>金额</span>
+                        <span>数量</span>
+                        <span>操作</span>
+                    </div>
                     <div v-if="settlementList.length > 0">
                         <div class="item-order" v-for="(item, index) in settlementList" :key="index">
                             <span class="order-title">{{ item.name }}</span>
                             <span>{{ item.price | numFilter }}</span>
-                            <span>✖</span>
-                            <el-input type="number" style="width:80px" @input="itemNum(item)"
-                                v-model="item.num"></el-input>
+                            <span>✖<el-input type="number" style="width:80px" @input="itemNum(item)"
+                                    v-model="item.num"></el-input></span>
+
                             <el-link type="danger" :underline="false" @click="delOrder(item, index)">删除</el-link>
                         </div>
                     </div>
@@ -117,7 +123,11 @@ export default {
         },
         // 获取菜品
         async getListFood() {
-            let { code, rows } = await listFood(this.classData);
+            let params = {
+                pageNum: 1,
+                pageSize: 999
+            }
+            let { code, rows } = await listFood({ ...this.classData, ...params });
             if (code == 200) {
                 rows.forEach(item => {
                     item.num = 1
@@ -193,14 +203,30 @@ export default {
                                 <span class="order-detail-item-list-total">✖${item.num}</span>
                             </div>`
             })
-
-
             addOrder(params).then(res => {
                 if (res.code == 200) {
                     console.log(res);
+                    this.lodpData = res;
                     this.$message.success('下单成功！');
+                    this.$confirm('需要打印小票吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.setLodop(res, setHtml)
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消打印'
+                        });
+                    });
 
-                    let strHtml = `<div class="order-detail" :id="order.orderNo">
+                    this.openVisible()
+                }
+            })
+        },
+        setLodop(res, setHtml) {
+            let strHtml = `<div class="order-detail" :id="order.orderNo">
                         <h3 class="order-detail-nickName">${this.$store.state.user.userInfo.nickName}</h3>
                         <p style="padding: 0 10px;">订单编号：${res.data}</p>
                         <span>************************</span>
@@ -217,7 +243,7 @@ export default {
                             合计金额：${this.moneyNum}
                         </div>
                     </div>`
-                    let styleAdd = `
+            let styleAdd = `
             <style>
             .order-detail {
                 width:400px
@@ -261,19 +287,16 @@ export default {
         line-height: 37px;
     }
       </style>`
-                    let strHtmlPrint = styleAdd + '<body>' + strHtml + '</body>'
-                    this.$nextTick(() => {
-                        let LODOP = getLodop()//调用getLodop获取LODOP对象
-                        LODOP.PRINT_INIT("")
-                        LODOP.SET_LICENSES('', '15F0BE661E7F39DF7491843CB2514F3D', '', '')
-                        LODOP.SET_PRINT_PAGESIZE(3, "58mm", 60, "");
-                        LODOP.SET_PRINT_STYLE("FontSize", 4);
-                        LODOP.ADD_PRINT_HTM('0mm', '0mm', '100%', '100%', strHtmlPrint)
-                        // LODOP.PREVIEW()
-                        LODOP.PRINT()
-                    })
-                    this.openVisible()
-                }
+            let strHtmlPrint = styleAdd + '<body>' + strHtml + '</body>'
+            this.$nextTick(() => {
+                let LODOP = getLodop()//调用getLodop获取LODOP对象
+                LODOP.PRINT_INIT("")
+                LODOP.SET_LICENSES('', '15F0BE661E7F39DF7491843CB2514F3D', '', '')
+                LODOP.SET_PRINT_PAGESIZE(3, "58mm", 60, "");
+                LODOP.SET_PRINT_STYLE("FontSize", 4);
+                LODOP.ADD_PRINT_HTM('0mm', '0mm', '100%', '100%', strHtmlPrint)
+                // LODOP.PREVIEW()
+                LODOP.PRINT()
             })
         },
         // 数相加
