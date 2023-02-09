@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:20:04
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-07 15:14:36
+ * @LastEditTime: 2023-02-09 23:07:43
  * @FilePath: \orderfood\src\views\dishesIMgr\dishesMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,6 +12,10 @@
             <div class="topSearch-base magin-base">
                 <span>菜品名称：</span>
                 <el-input class="topSearch-width" v-model="searchFrom.name" placeholder="请输入"></el-input>
+            </div>
+            <div class="topSearch-base magin-base">
+                <span>菜品编号：</span>
+                <el-input class="topSearch-width" v-model="searchFrom.foodNo" placeholder="请输入"></el-input>
             </div>
             <div class="topSearch-base magin-base">
                 <span>菜品分类：</span>
@@ -172,7 +176,11 @@ export default {
         },
         // 查询分类列表
         async getFoodClass() {
-            let { code, rows } = await getFoodClass();
+            let params = {
+                pageNum: 1,
+                pageSize: 999
+            }
+            let { code, rows } = await getFoodClass(params);
             if (code == 200) {
                 console.log(rows);
                 this.dishesClassify = rows;

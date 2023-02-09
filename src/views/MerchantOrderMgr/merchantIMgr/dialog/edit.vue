@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-23 18:19:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-08 01:14:15
+ * @LastEditTime: 2023-02-09 15:17:28
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\visibleLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -41,12 +41,16 @@
                     </div>
                 </div>
                 <div class="right-box">
-                    <h4>菜品</h4>
+                    <div class="title-menu-box">
+                        <h4>菜品</h4>
+                        <el-input style="width: 240px;margin-left: 20px;" v-model="menuData.foodNo" @input="searchMenu" placeholder="输入菜品编号查询"></el-input>
+                    </div>
                     <div class="menu-list">
                         <div v-if="menuList.length > 0">
                             <div class="menu-item" v-for="(item, index) in menuList" :key="index"
                                 @click="menuClick(item)">
-                                {{ item.name }}
+                                <span v-if="item.foodNo" style="font-size:14px">编号：{{ item.foodNo }}</span>
+                                <span>{{ item.name }}</span>
                             </div>
                         </div>
 
@@ -83,7 +87,8 @@ export default {
             ContNum: 0,
             moneyNum: 0,
             paramsData: [],
-            editData: {}
+            editData: {},
+            menuData:{}
 
         }
     },
@@ -133,7 +138,11 @@ export default {
         },
         // 获取菜品
         async getListFood() {
-            let { code, rows } = await listFood(this.classData);
+            let params = {
+                pageNum: 1,
+                pageSize: 999
+            }
+            let { code, rows } = await listFood({ ...this.classData, ...params,...this.menuData });
             if (code == 200) {
                 rows.forEach(item => {
                     item.num = 1;
@@ -141,6 +150,9 @@ export default {
                 this.menuList = rows;
 
             }
+        },
+        searchMenu() {
+            this.getListFood()
         },
         classMenu(item, index) {
             this.activeNum = index;
@@ -385,14 +397,17 @@ export default {
 
     .right-box {
         width: 55%;
-
+        .title-menu-box{
+            display: flex;
+            align-items: center;
+        }
         .menu-list {
             overflow: auto;
             height: 502px;
 
             .menu-item {
                 cursor: pointer;
-                line-height: 120px;
+                height: 120px;
                 margin: 5px 6px;
                 border-top: 1px solid #ccc;
                 border-right: 1px solid #ccc;
@@ -402,8 +417,12 @@ export default {
                 color: #000;
                 text-align: center;
                 width: 160px;
-                display: inline-block;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
                 float: left;
+                padding: 0 20px;
             }
 
             .menu-item:nth-child(n)::before {
