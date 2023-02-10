@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com 粉面点餐
  * @Date: 2023-01-23 15:35:14
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-08 10:41:04
+ * @LastEditTime: 2023-02-10 14:54:00
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\FlourOrderIMgr\index.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -172,7 +172,6 @@ export default {
             this.moneyNum = this.money(this.settlementList)
         },
         subMitAdd() {
-            console.log(this.settlementList);
             if (this.settlementList.length == 0) {
                 this.$message.error('请选择菜品下单！');
                 return false
@@ -191,10 +190,9 @@ export default {
                 discountAmount: 0,
                 food: paramsData,
                 status: '2',
+                isBill:'1',
                 billTime: this.parseTime(newTime)
             }
-
-            console.log(params);
             let setHtml = this.settlementList.map(item => {
                 return `<div class="order-detail-item-list">
                                 <span class="order-detail-item-list-title">${item.name}</span>
@@ -205,7 +203,6 @@ export default {
             })
             addOrder(params).then(res => {
                 if (res.code == 200) {
-                    console.log(res);
                     this.lodpData = res;
                     this.$message.success('下单成功！');
                     this.$confirm('需要打印小票吗?', '提示', {

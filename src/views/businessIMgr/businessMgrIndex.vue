@@ -102,7 +102,6 @@ export default {
             if (code == 200) {
                 this.tableData = rows;
                 this.total = total
-                console.log(this.tableData);
             }
         }
     }

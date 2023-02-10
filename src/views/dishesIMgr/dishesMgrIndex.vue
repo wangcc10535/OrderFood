@@ -182,7 +182,6 @@ export default {
             }
             let { code, rows } = await getFoodClass(params);
             if (code == 200) {
-                console.log(rows);
                 this.dishesClassify = rows;
             }
         },

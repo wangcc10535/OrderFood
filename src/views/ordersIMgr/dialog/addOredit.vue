@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-15 17:23:29
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-27 13:40:19
+ * @LastEditTime: 2023-02-10 14:53:26
  * @FilePath: \orderfood\src\views\ordersIMgr\dialog\addOredit.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -156,7 +156,6 @@ export default {
                 status: '2',
                 food: []
             };
-            console.log(data);
             if (data) {
                 this.saveForm = data
             }
@@ -169,7 +168,6 @@ export default {
             let { code, rows, total } = await listShop({ ...this.searchFrom, ...this.queryParams })
             if (code == 200) {
                 this.shopList = rows;
-                console.log(this.shopList);
             }
         },
         // 选择店铺
@@ -188,7 +186,6 @@ export default {
             let { code, rows } = await listFood({ shopId: this.shopId })
             if (code == 200) {
                 this.menuList = rows;
-                console.log(this.menuList);
             }
         },
         subMitAdd() {
@@ -196,11 +193,9 @@ export default {
                 if (valid) {
                     // alert('submit!');
                     if (this.saveForm.food.length == 0) {
-                        console.log('123');
                         this.$message.error('请选择菜单')
                         return false;
                     }
-                    console.log(this.saveForm);
                     addOrder(this.saveForm).then(res => {
                         if (res.code == 200) {
                             this.$message.success('新增成功！')
@@ -230,7 +225,6 @@ export default {
         },
         // 选择菜单
         selectionChange(e) {
-            console.log(e)
             this.choiceTypeData = e
         },
         // 确定菜单
@@ -270,8 +264,6 @@ export default {
             })
 
             this.arrayMenuList.forEach(element => {
-                console.log(element.foodId);
-                console.log(row.foodId);
                 if (element.foodId == row.foodId) {
                     this.arrayMenuList.splice(element, 1);
                 }

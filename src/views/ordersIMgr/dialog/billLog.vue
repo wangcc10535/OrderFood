@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-17 01:34:09
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-17 01:45:16
+ * @LastEditTime: 2023-02-10 14:52:58
  * @FilePath: \orderfood\src\views\ordersIMgr\dialog\billLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -63,8 +63,6 @@ export default {
         subMitAdd() {
             this.$refs.ruleForm.validate((valid) => {
                 if (valid) {
-                    // alert('submit!');
-                    console.log(this.saveForm);
                     putBill(this.saveForm).then(res => {
                         if (res.code == 200) {
                             this.$message.success('操作成功！')

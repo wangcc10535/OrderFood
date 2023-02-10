@@ -90,7 +90,6 @@ export default {
         if (val) {
           // 首先将值转为数组
           const list = Array.isArray(val) ? val : this.value.split(',');
-          console.log(list);
           // 然后将数组转为对象数组
           this.fileList = list.map(item => {
             if (typeof item === "string") {
@@ -102,7 +101,6 @@ export default {
             }
             return item;
           });
-          console.log(this.fileList);
         } else {
           this.fileList = [];
           return [];

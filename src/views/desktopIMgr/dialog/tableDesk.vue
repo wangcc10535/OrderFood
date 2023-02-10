@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-15 20:53:43
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-01-27 23:11:01
+ * @LastEditTime: 2023-02-10 14:54:12
  * @FilePath: \orderfood\src\views\desktopIMgr\dialog\tableDesk.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -50,7 +50,6 @@ export default {
         openVisible(item, data) {
             this.dialogVisible = true;
             this.saveForm = {};
-            console.log(data);
             if (data) {
                 data.areaName = item.areaName
                 this.saveForm = data
@@ -82,7 +81,6 @@ export default {
                         })
                     }
                 } else {
-                    console.log('error submit!!');
                     return false;
                 }
             });

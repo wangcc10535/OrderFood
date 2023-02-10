@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-06 18:13:50
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-06 16:29:37
+ * @LastEditTime: 2023-02-10 14:53:03
  * @FilePath: \orderfood\src\views\BackOfficeMgr\BackOfficeIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -184,10 +184,8 @@ export default {
         },
         // 查看菜品排行
         getSalesRanking() {
-            console.log(this.boardObj);
             SalesRanking().then(res => {
                 if (res.code == 200) {
-                    console.log(res);
                     this.salesRankingObj.list = res.rows;
                 }
             })
@@ -199,7 +197,6 @@ export default {
             }
             SalesVolume(params).then(res => {
                 if (res.code == 200) {
-                    console.log(res);
                     // xAxisData  billTime
                     this.revenueObj.lineChartData.data = res.rows.map(item =>{
                         return item.price
@@ -211,14 +208,12 @@ export default {
             })
         },
         getTotal() {
-            console.log(this.boardObj.dateRange);
             let parms = {
                 starDate:this.boardObj.dateRange[0],
                 endDate:this.boardObj.dateRange[1]
             }
             getTotal(parms).then(res => {
                 if (res.code == 200) {
-                    console.log(res);
                     this.boardObj.data = res.data;
                 }
             })

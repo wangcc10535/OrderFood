@@ -59,7 +59,6 @@ export default {
     methods: {
         openVisible(data) {
             this.dialogVisible = true;
-            console.log(data);
             this.saveForm = {
                 parentId: this.$store.state.user.userInfo.deptId
             }
@@ -84,7 +83,6 @@ export default {
             listDept(queryParams).then(response => {
                 this.deptList = this.handleTree(response.data, "deptId");
                 this.deptList.push(this.$store.state.user.userInfo.dept)
-                console.log(this.deptList);
             });
         },
         subMitAdd() {
@@ -108,7 +106,6 @@ export default {
                         })
                     }
                 } else {
-                    console.log('error submit!!');
                     return false;
                 }
             });

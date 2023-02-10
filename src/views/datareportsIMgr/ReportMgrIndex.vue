@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:49:42
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-06 14:56:09
+ * @LastEditTime: 2023-02-10 14:54:04
  * @FilePath: \orderfood\src\views\datareportsIMgr\reportMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,22 +12,23 @@
             <div class="topSearch base-background top-box" ref="element">
                 <div class="topSearch-base magin-base" v-if="activeName == 'day'">
                     <span>时间：</span>
-                    <el-date-picker v-model="searchFrom.day" value-format="yyyy-MM-dd" type="daterange"
-                        range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+                    <el-date-picker v-model="searchFrom.day" value-format="yyyy-MM" type="month" placeholder="选择月">
                     </el-date-picker>
                 </div>
                 <div class="topSearch-base magin-base" v-if="activeName == 'month'">
                     <span>时间：</span>
-                    <el-date-picker v-model="searchFrom.month" value-format="yyyy-MM" type="month" placeholder="选择月">
+                    <el-date-picker v-model="searchFrom.month" value-format="yyyy" type="year" placeholder="选择年">
                     </el-date-picker>
                 </div>
-                <div class="topSearch-base magin-base" v-if="activeName == 'year'">
+                <!-- <div class="topSearch-base magin-base" v-if="activeName == 'year'">
                     <span>时间：</span>
                     <el-date-picker v-model="searchFrom.year" value-format="yyyy" type="year" placeholder="选择年">
                     </el-date-picker>
-                </div>
-                <el-button class="magin-base" type="primary" size="mini" @click="searchQuery">搜索</el-button>
-                <el-button class="magin-base" type="warning" size="mini" @click="resetQuery">重置</el-button>
+                </div> -->
+                <el-button class="magin-base" v-if="activeName != 'year'" type="primary" size="mini"
+                    @click="searchQuery">搜索</el-button>
+                <el-button class="magin-base" v-if="activeName != 'year'" type="warning" size="mini"
+                    @click="resetQuery">重置</el-button>
             </div>
             <div class="content base-background">
                 <div class="content-table">
@@ -36,9 +37,9 @@
                             :name="item.name"></el-tab-pane>
                     </el-tabs>
                     <el-table :data="tableData" border :height="baseHeight" style="width: 100%">
-                        <el-table-column prop="dswr" label="日期" fixed="left" align="center"></el-table-column>
-                        <el-table-column prop="cropName" label="订单数" align="center"></el-table-column>
-                        <el-table-column prop="cropName" label="订单金额" align="center"></el-table-column>
+                        <el-table-column prop="billTime" label="日期" fixed="left" align="center"></el-table-column>
+                        <el-table-column prop="num" label="订单数" align="center"></el-table-column>
+                        <el-table-column prop="price" label="订单金额" align="center"></el-table-column>
                         <el-table-column prop="cropName" label="优惠金额" align="center"></el-table-column>
                         <el-table-column prop="cropName" label="实际营业额" align="center"></el-table-column>
                     </el-table>
@@ -92,12 +93,13 @@ export default {
         var date = new Date();
         date.setDate(1);
         var dateStart = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
-        this.searchFrom.day = [dateStart, this.parseTime(new Date(), '{y}-{m}-{d}')];
-        this.searchFrom.month = this.parseTime(new Date(), '{y}-{m}');
+        this.searchFrom.day = this.parseTime(new Date(), '{y}-{m}');
+        this.searchFrom.month = this.parseTime(new Date(), '{y}');
+        // this.searchFrom.month = dateStart
         if (this.activeName == 'day') {
             this.getDayOrder()
         } else if (this.activeName == 'month') {
-            this.getMonthOrder()
+            this.getMonthOrder(dateStart)
         } else if (this.activeName == 'year') {
             this.getYearOrder()
         }
@@ -109,7 +111,6 @@ export default {
     },
     methods: {
         searchQuery() {
-            console.log(this.searchFrom);
             if (this.activeName == 'day') {
                 this.getDayOrder()
             } else if (this.activeName == 'month') {
@@ -119,27 +120,39 @@ export default {
             }
         },
         resetQuery() {
-            this.searchFrom = {};
+            this.searchFrom = {
+                day: this.parseTime(new Date(), '{y}-{m}'),
+                month: this.parseTime(new Date(), '{y}'),
+            };
+            if (this.activeName == 'day') {
+                this.getDayOrder()
+            } else if (this.activeName == 'month') {
+                this.getMonthOrder()
+            } else if (this.activeName == 'year') {
+                this.getYearOrder()
+            }
             this.getList()
         },
         getList() { },
         // 获取日报表
         getDayOrder() {
             let params = {
-                starDate: this.searchFrom.day[0],
-                endDate: this.searchFrom.day[1]
+                starDate: this.searchFrom.day
             }
             DayOrder(params).then(res => {
                 if (res.code == 200) {
-                    console.log(res);
+                    this.tableData = res.rows;
                 }
             })
         },
         // 获取月报表
         getMonthOrder() {
-            MonthOrder().then(res => {
+            let params = {
+                starDate: this.searchFrom.month + '-01-01'
+            }
+            MonthOrder(params).then(res => {
                 if (res.code == 200) {
-                    console.log(res);
+                    this.tableData = res.rows;
                 }
             })
         },
@@ -147,12 +160,11 @@ export default {
         getYearOrder() {
             YearOrder().then(res => {
                 if (res.code == 200) {
-                    console.log(res);
+                    this.tableData = res.rows;
                 }
             })
         },
         handleClick(event) {
-            console.log(event.name);
             if (event.name == 'day') {
                 this.getDayOrder()
             } else if (event.name == 'month') {

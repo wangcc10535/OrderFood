@@ -53,7 +53,6 @@ export default {
             this.saveForm = {
                 enable: 1
             };
-            console.log(data);
             if (data) {
                 this.saveForm = data
             }
@@ -65,8 +64,6 @@ export default {
         subMitAdd() {
             this.$refs.ruleForm.validate((valid) => {
                 if (valid) {
-                    // alert('submit!');
-                    console.log(this.saveForm);
                     if (this.saveForm.id) {
                         updateFoodClass(this.saveForm).then(res => {
                             if (res.code == 200) {
@@ -83,7 +80,6 @@ export default {
                         })
                     }
                 } else {
-                    console.log('error submit!!');
                     return false;
                 }
             });

@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com 桌面订单统计
  * @Date: 2023-01-24 22:09:27
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-08 01:15:25
+ * @LastEditTime: 2023-02-10 14:54:09
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\orderDetail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -133,7 +133,6 @@ export default {
             this.innerVisible = false;
         },
         openVisible(data) {
-            console.log(data);
             this.tableData = data;
             this.dialogVisible = true;
             this.getDetailOrder();
@@ -164,7 +163,6 @@ export default {
         },
         // 打印小票
         printClick(data) {
-            console.log(data);
             let strHtml = document.getElementById(data.orderNo).innerHTML
             let styleAdd = `
             <style>
@@ -222,8 +220,6 @@ export default {
                 // LODOP.PREVIEW()
                 LODOP.PRINT()
             })
-
-            console.log();
         },
         // 修改订单
         editOrder(data) {
@@ -264,7 +260,6 @@ export default {
                         ids: dataArray,
                         pay: this.ruleForm.pay
                     }
-                    console.log(params);
                     billsOrder(params).then(res => {
                         if (res.code == 200) {
                             this.$message({

@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-14 23:31:10
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-09 23:05:03
+ * @LastEditTime: 2023-02-10 14:53:40
  * @FilePath: \orderfood\src\views\dishesIMgr\dialog\addLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -74,7 +74,6 @@ export default {
     methods: {
         openVisible(data) {
             this.dialogVisible = true;
-            console.log(data);
             this.saveForm = {
                 enable: 1
             };
@@ -89,8 +88,6 @@ export default {
         subMitAdd() {
             this.$refs.ruleForm.validate((valid) => {
                 if (valid) {
-                    // alert('submit!');
-                    console.log(this.saveForm);
                     if (this.saveForm.id) {
                         updateFood(this.saveForm).then(res => {
                             if (res.code == 200) {
@@ -114,7 +111,6 @@ export default {
         },
         // 获取封面地址
         titleImg(img) {
-            console.log(img);
             this.saveForm.imgFile = img
         },
         // 查询分类列表
