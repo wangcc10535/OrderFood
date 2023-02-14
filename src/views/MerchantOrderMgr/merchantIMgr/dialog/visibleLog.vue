@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-23 18:19:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-10 14:53:11
+ * @LastEditTime: 2023-02-11 11:39:27
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\visibleLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -134,7 +134,11 @@ export default {
 
         // 获取菜品类别
         async getFoodClass() {
-            let { code, rows } = await getFoodClass();
+            let params = {
+                pageNum:1,
+                pageSize:999,
+            }
+            let { code, rows } = await getFoodClass(params);
             if (code == 200) {
                 this.dishesClassify = rows;
                 this.dishesClassify.unshift({ id: 99, name: '全部' })

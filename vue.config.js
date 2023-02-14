@@ -35,7 +35,8 @@ module.exports = {
     proxy: {
       // detail: https://cli.vuejs.org/config/#devserver-proxy
       [process.env.VUE_APP_BASE_API]: {
-        target: `http://www.weduinter.com:8081`,
+        // target: `http://www.weduinter.com:8081`,
+        target:`https://www.weduinter.com/prod-api`,
         // target: `http://47.98.124.172:8081`,
         changeOrigin: true,
         pathRewrite: {
