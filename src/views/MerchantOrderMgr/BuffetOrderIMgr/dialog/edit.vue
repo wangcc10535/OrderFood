@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-23 18:19:48
  * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-11 11:39:27
+ * @LastEditTime: 2023-02-11 11:41:11
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\visibleLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -14,12 +14,6 @@
                 <div class="left-box">
                     <h4>所点订单</h4>
                     <div class="order-list">
-                        <div class="item-order">
-                            <span class="order-title">菜品名称</span>
-                            <span>金额</span>
-                            <span>数量</span>
-                            <span>操作</span>
-                        </div>
                         <div v-if="settlementList.length > 0">
                             <div class="item-order" v-for="(item, index) in settlementList" :key="index">
                                 <span class="order-title">{{ item.name }}</span>
@@ -49,9 +43,9 @@
                 <div class="right-box">
                     <div class="title-menu-box">
                         <h4>菜品</h4>
-                        <el-input style="width: 240px;margin-left: 20px;" v-model="menuData.foodNo" @input="searchMenu" placeholder="输入菜品编号查询"></el-input>
+                        <el-input style="width: 240px;margin-left: 20px;" v-model="menuData.foodNo" @input="searchMenu"
+                            placeholder="输入菜品编号查询"></el-input>
                     </div>
-
                     <div class="menu-list">
                         <div v-if="menuList.length > 0">
                             <div class="menu-item" v-for="(item, index) in menuList" :key="index"
@@ -74,7 +68,7 @@
 </template>
 <script>
 import { getFoodClass, listFood } from '@/api/dishesMgr/dishesIMgr'
-import { addOrder } from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
+import { addOrder, editOrder } from '@/api/MerchantOrderMgr/merchantIMgr/index.js'
 export default {
 
     name: 'visibleLog',
@@ -94,7 +88,8 @@ export default {
             ContNum: 0,
             moneyNum: 0,
             paramsData: [],
-            menuData:{}
+            editData: {},
+            menuData: {}
 
         }
     },
@@ -116,27 +111,29 @@ export default {
             this.dialogVisible = true;
             this.classData = {};
             this.settlementList = [];
-            if (data) {
-                this.saveForm = data
+            if (data.orderNo) {
+                this.editData = data
+                this.settlementList = data.food.map(item => {
+                    item.name = item.foodName;
+                    return item;
+                })
+                this.ContNum = this.sum(this.settlementList);
+                this.moneyNum = this.money(this.settlementList)
             }
             this.getFoodClass();
             this.getListFood();
         },
         handleClose() {
             this.dialogVisible = false;
-            if (this.saveForm.price) {
-                this.$emit('getDetail', '更新')
-            } else {
-                this.$parent.getFoodTable()
-            }
+            this.$emit('getDetail')
 
         },
 
         // 获取菜品类别
         async getFoodClass() {
             let params = {
-                pageNum:1,
-                pageSize:999,
+                pageNum: 1,
+                pageSize: 999,
             }
             let { code, rows } = await getFoodClass(params);
             if (code == 200) {
@@ -150,7 +147,7 @@ export default {
                 pageNum: 1,
                 pageSize: 999
             }
-            let { code, rows } = await listFood({ ...this.classData, ...params,...this.menuData });
+            let { code, rows } = await listFood({ ...this.classData, ...params, ...this.menuData });
             if (code == 200) {
                 rows.forEach(item => {
                     item.num = 1;
@@ -158,6 +155,9 @@ export default {
                 this.menuList = rows;
 
             }
+        },
+        searchMenu() {
+            this.getListFood()
         },
         classMenu(item, index) {
             this.activeNum = index;
@@ -170,9 +170,6 @@ export default {
                 }
             }
             this.getListFood();
-        },
-        searchMenu() {
-            this.getListFood()
         },
         // 删除单个
         delOrder(item, index) {
@@ -188,9 +185,7 @@ export default {
         // 点击拼接结算
         menuClick(item) {
             this.settlementList.push(item)
-            // this.settlementList = Array.from(new Set(this.settlementList))
             this.settlementList = this.unique(this.settlementList)
-
             this.ContNum = this.sum(this.settlementList);
             this.moneyNum = this.money(this.settlementList)
         },
@@ -199,28 +194,24 @@ export default {
             this.moneyNum = this.money(this.settlementList)
         },
         subMitAdd() {
-            // console.log(this.settlementList);
-            if (this.settlementList.length == 0) {
-                this.$message.error('请选择菜品下单！');
-                return false
-            }
             this.paramsData = this.settlementList.map(item => {
                 let data = {}
-                data.foodId = item.id;
+                data.foodId = item.foodId;
                 data.num = item.num
                 return data
             })
             let params = {
-                tableId: this.saveForm.id,
-                tableName: this.saveForm.name,
+                tableId: this.editData.tableId,
+                tableName: this.editData.tableName,
                 price: this.moneyNum,
                 amount: this.moneyNum,
                 discountAmount: 0,
-                food: this.paramsData
+                food: this.paramsData,
+                id: this.editData.id
             }
-            addOrder(params).then(res => {
+            editOrder(params).then(res => {
                 if (res.code == 200) {
-                    this.$message.success('下单成功！');
+                    this.$message.success('修改成功！');
                     this.handleClose()
                 }
             })
@@ -408,10 +399,12 @@ export default {
 
     .right-box {
         width: 55%;
-        .title-menu-box{
+
+        .title-menu-box {
             display: flex;
             align-items: center;
         }
+
         .menu-list {
             overflow: auto;
             height: 502px;

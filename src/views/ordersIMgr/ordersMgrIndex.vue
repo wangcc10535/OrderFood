@@ -1,8 +1,8 @@
 <!--
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:31:48
- * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-08 17:31:24
+ * @LastEditors: wcc 9316202+wccvidor@user.noreply.gitee.com
+ * @LastEditTime: 2023-02-28 20:19:47
  * @FilePath: \orderfood\src\views\ordersIMgr\ordersMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -54,8 +54,12 @@
                             </div>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="createTime" label="开台时间" align="center"></el-table-column>
-                    <el-table-column prop="billTime" label="结算时间" align="center"></el-table-column>
+                    <!-- <el-table-column prop="createTime" label="开台时间" align="center"></el-table-column> -->
+                    <el-table-column prop="billTime" label="结算时间" align="center">
+                        <template slot-scope="{row}">
+                            {{ row.billTime || '--' }}
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="price" label="订单金额" align="center"></el-table-column>
                     <el-table-column prop="amount" label="实收金额" align="center"></el-table-column>
                     <el-table-column prop="discountAmount" label="优惠金额" align="center">
