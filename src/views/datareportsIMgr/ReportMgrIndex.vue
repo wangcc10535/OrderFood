@@ -1,8 +1,8 @@
 <!--
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-05 22:49:42
- * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-10 15:08:43
+ * @LastEditors: wcc 9316202+wccvidor@user.noreply.gitee.com
+ * @LastEditTime: 2023-03-01 13:02:52
  * @FilePath: \orderfood\src\views\datareportsIMgr\reportMgrIndex.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -43,8 +43,8 @@
                         <el-table-column prop="discountAmount" label="优惠金额" align="center"></el-table-column>
                         <el-table-column prop="amount" label="实际营业额" align="center"></el-table-column>
                     </el-table>
-                    <p v-if="activeName == 'day'">{{searchFrom.day}}月日表统计，合计：订单数：{{orderNum(tableData)}}单，订单金额：{{orderMoney(tableData)}}元；实际营业额：{{orderAmount(tableData)}}元</p>
-                    <p v-if="activeName == 'month'">{{searchFrom.month}}年1月至今统计，合计：订单数：{{orderNum(tableData)}}单，订单金额：{{orderMoney(tableData)}}元；实际营业额：{{orderAmount(tableData)}}元</p>
+                    <p v-if="activeName == 'day'">{{userInfo.nickName}}日表{{searchFrom.day}}月每日统计，合计：订单数：<span class="red">{{orderNum(tableData)}}</span> 单，订单金额：<span class="red">{{orderMoney(tableData)}}</span> 元；实际营业额：<span class="red">{{orderAmount(tableData)}}</span> 元</p>
+                    <p v-if="activeName == 'month'">{{userInfo.nickName}}月报表{{searchFrom.month}}年1月至今统计，合计：订单数：<span class="red">{{orderNum(tableData)}}</span> 单，订单金额：<span class="red">{{orderMoney(tableData)}}</span> 元；实际营业额：<span class="red">{{orderAmount(tableData)}}</span> 元</p>
                     <!--   分页   -->
                     <div class="pagination-box" v-if="total > 0">
                         <pagination :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
@@ -86,7 +86,8 @@ export default {
                     label: '年报表',
                     name: 'year'
                 }
-            ]
+            ],
+            userInfo:this.$store.state.user.userInfo
         }
     },
     created() {
@@ -207,5 +208,10 @@ export default {
 <style scoped lang='scss'>
 .content-table {
     margin-top: 0;
+}
+.red{
+    color: #de0639;
+    font-weight: 600;
+    font-size: 18px;
 }
 </style>
