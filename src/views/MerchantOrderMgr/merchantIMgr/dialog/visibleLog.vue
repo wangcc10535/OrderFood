@@ -1,8 +1,8 @@
 <!--
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-23 18:19:48
- * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-11 11:39:27
+ * @LastEditors: wcc 9316202+wccvidor@user.noreply.gitee.com
+ * @LastEditTime: 2023-03-01 12:13:07
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\visibleLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -218,6 +218,7 @@ export default {
                 discountAmount: 0,
                 food: this.paramsData
             }
+            // console.log(params);
             addOrder(params).then(res => {
                 if (res.code == 200) {
                     this.$message.success('下单成功！');
