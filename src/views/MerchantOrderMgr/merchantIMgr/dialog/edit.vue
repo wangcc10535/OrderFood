@@ -1,8 +1,8 @@
 <!--
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-23 18:19:48
- * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-11 11:41:11
+ * @LastEditors: wcc 9316202+wccvidor@user.noreply.gitee.com
+ * @LastEditTime: 2023-03-05 00:51:15
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\visibleLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -114,6 +114,7 @@ export default {
             if (data.orderNo) {
                 this.editData = data
                 this.settlementList = data.food.map(item => {
+                    console.log(item);
                     item.name = item.foodName;
                     return item;
                 })
@@ -151,6 +152,7 @@ export default {
             if (code == 200) {
                 rows.forEach(item => {
                     item.num = 1;
+                    item.foodId = item.id;
                 })
                 this.menuList = rows;
 
@@ -184,6 +186,7 @@ export default {
         },
         // 点击拼接结算
         menuClick(item) {
+            console.log(item);
             this.settlementList.push(item)
             this.settlementList = this.unique(this.settlementList)
             this.ContNum = this.sum(this.settlementList);
@@ -236,9 +239,12 @@ export default {
             var result = [];
             var obj = {};
             for (var i = 0; i < arr.length; i++) {
-                if (!obj[arr[i].id]) {
+                if (!obj[arr[i].foodId]) {
                     result.push(arr[i]);
-                    obj[arr[i].id] = true;
+                    obj[arr[i].foodId] = true;
+                }else {
+                    console.log(arr[i]);
+                    ++arr[i].num
                 }
             }
             return result
@@ -427,6 +433,14 @@ export default {
                 justify-content: center;
                 float: left;
                 padding: 0 20px;
+                /* 火狐 */
+                -moz-user-select: none;
+                /* Safari 和 欧朋 */
+                -webkit-user-select: none;
+                /* IE10+ and Edge */
+                -ms-user-select: none;
+                /* Standard syntax 标准语法(谷歌) */
+                user-select: none;
             }
 
             .menu-item:nth-child(n)::before {

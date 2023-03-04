@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-23 18:19:48
  * @LastEditors: wcc 9316202+wccvidor@user.noreply.gitee.com
- * @LastEditTime: 2023-03-01 12:13:07
+ * @LastEditTime: 2023-03-05 00:35:03
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\visibleLog.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -49,13 +49,14 @@
                 <div class="right-box">
                     <div class="title-menu-box">
                         <h4>菜品</h4>
-                        <el-input style="width: 240px;margin-left: 20px;" v-model="menuData.foodNo" @input="searchMenu" placeholder="输入菜品编号查询"></el-input>
+                        <el-input style="width: 240px;margin-left: 20px;" v-model="menuData.foodNo" @input="searchMenu"
+                            placeholder="输入菜品编号查询"></el-input>
                     </div>
 
                     <div class="menu-list">
-                        <div v-if="menuList.length > 0">
-                            <div class="menu-item" v-for="(item, index) in menuList" :key="index"
-                                @click="menuClick(item)">
+                        <div v-if="menuList.length > 0" v-loading="loading" element-loading-text="拼命加载中"
+                            element-loading-spinner="el-icon-loading" element-loading-background="rgba(255, 255, 255, 0.8)">
+                            <div class="menu-item" v-for="(item, index) in menuList" :key="index" @click="menuClick(item)">
                                 <span v-if="item.foodNo" style="font-size:14px">编号：{{ item.foodNo }}</span>
                                 <span>{{ item.name }}</span>
                             </div>
@@ -82,6 +83,7 @@ export default {
     data() {
         return {
             dialogVisible: false,
+            loading: false,
             radio1: '',
             saveForm: {},
             activeNum: '',
@@ -94,7 +96,7 @@ export default {
             ContNum: 0,
             moneyNum: 0,
             paramsData: [],
-            menuData:{}
+            menuData: {}
 
         }
     },
@@ -135,8 +137,8 @@ export default {
         // 获取菜品类别
         async getFoodClass() {
             let params = {
-                pageNum:1,
-                pageSize:999,
+                pageNum: 1,
+                pageSize: 999,
             }
             let { code, rows } = await getFoodClass(params);
             if (code == 200) {
@@ -150,13 +152,14 @@ export default {
                 pageNum: 1,
                 pageSize: 999
             }
-            let { code, rows } = await listFood({ ...this.classData, ...params,...this.menuData });
+            this.loading = true;
+            let { code, rows } = await listFood({ ...this.classData, ...params, ...this.menuData });
             if (code == 200) {
                 rows.forEach(item => {
                     item.num = 1;
                 })
                 this.menuList = rows;
-
+                this.loading = false;
             }
         },
         classMenu(item, index) {
@@ -190,7 +193,6 @@ export default {
             this.settlementList.push(item)
             // this.settlementList = Array.from(new Set(this.settlementList))
             this.settlementList = this.unique(this.settlementList)
-
             this.ContNum = this.sum(this.settlementList);
             this.moneyNum = this.money(this.settlementList)
         },
@@ -249,6 +251,8 @@ export default {
                 if (!obj[arr[i].id]) {
                     result.push(arr[i]);
                     obj[arr[i].id] = true;
+                } else {
+                    ++arr[i].num
                 }
             }
             return result
@@ -409,10 +413,12 @@ export default {
 
     .right-box {
         width: 55%;
-        .title-menu-box{
+
+        .title-menu-box {
             display: flex;
             align-items: center;
         }
+
         .menu-list {
             overflow: auto;
             height: 502px;
@@ -435,6 +441,14 @@ export default {
                 justify-content: center;
                 float: left;
                 padding: 0 20px;
+                /* 火狐 */
+                -moz-user-select: none;
+                /* Safari 和 欧朋 */
+                -webkit-user-select: none;
+                /* IE10+ and Edge */
+                -ms-user-select: none;
+                /* Standard syntax 标准语法(谷歌) */
+                user-select: none;
             }
 
             .menu-item:nth-child(n)::before {
@@ -462,6 +476,9 @@ export default {
     .active {
         background-color: #697eee;
         color: #fff !important;
+    }
+    .el-loading-parent--relative{
+        height: 100%;
     }
 }
 </style>
