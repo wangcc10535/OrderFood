@@ -1,8 +1,8 @@
 <!--
  * @Author: wangcc 1053578651@qq.com 桌面订单统计
  * @Date: 2023-01-24 22:09:27
- * @LastEditors: wangcc 1053578651@qq.com
- * @LastEditTime: 2023-02-10 14:54:09
+ * @LastEditors: wcc 9316202+wccvidor@user.noreply.gitee.com
+ * @LastEditTime: 2023-03-07 21:04:01
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\orderDetail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -19,7 +19,8 @@
                 <div class="detail-box" v-for="(order, index) in orderList" :key="index">
                     <div class="order-detail" :id="order.orderNo">
                         <h3 class="order-detail-nickName">{{ order.nickName }}</h3>
-                        <p style="padding: 0 10px;">订单编号：{{ order.orderNo }}</p>
+                        <p style="padding: 0 10px; font-size: 12px;" >订单编号：{{ order.orderNo }}</p>
+                        <p style="padding: 0 10px; font-size: 12px;">桌牌号：{{ tableData.name }}</p>
                         <span>************************</span>
                         <div class="order-detail-item">
                             <div class="order-detail-item-list">
@@ -133,6 +134,7 @@ export default {
             this.innerVisible = false;
         },
         openVisible(data) {
+            console.log(data);
             this.tableData = data;
             this.dialogVisible = true;
             this.getDetailOrder();
@@ -163,6 +165,7 @@ export default {
         },
         // 打印小票
         printClick(data) {
+            console.log(data);
             let strHtml = document.getElementById(data.orderNo).innerHTML
             let styleAdd = `
             <style>
@@ -176,12 +179,16 @@ export default {
     }
     .order-detail-item {
         border-top: 1px solid #c0c0c0;
-        padding: 10px  0 20px 0;
-        height: 45vh;
+        padding: 10px 0;
+        min-height: 300px;
         border-bottom: 1px solid #c0c0c0;
     }
     .order-detail-item-list {
             padding: 0 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px dashed;
     }
     .order-detail-item-list span {
                 line-height: 25px;
@@ -189,19 +196,18 @@ export default {
                 display: inline-block;
             }
             .order-detail-item-list-title {
-                width: 90px;
+                        width: 74px;
                 text-align: left;
-            }
+                    }
 
-            .order-detail-item-list-price {
-                width: 35px;
-                text-align: left;
-            }
+                    .order-detail-item-list-price {
+                        width: 64px;
+                text-align: center;
+                    }
 
-            .order-detail-item-list-total {
-                width: 35px;
-                text-align: right;
-            }
+                    .order-detail-item-list-total {
+                        text-align: left;
+                    }
             .footer-money {
         text-align: right;
         padding: 0 10px 60px 0;
@@ -220,6 +226,8 @@ export default {
                 // LODOP.PREVIEW()
                 LODOP.PRINT()
             })
+
+            console.log();
         },
         // 修改订单
         editOrder(data) {
@@ -260,6 +268,7 @@ export default {
                         ids: dataArray,
                         pay: this.ruleForm.pay
                     }
+                    console.log(params);
                     billsOrder(params).then(res => {
                         if (res.code == 200) {
                             this.$message({
