@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com 桌面订单统计
  * @Date: 2023-01-24 22:09:27
  * @LastEditors: wcc 9316202+wccvidor@user.noreply.gitee.com
- * @LastEditTime: 2023-03-07 21:04:01
+ * @LastEditTime: 2023-03-08 23:45:57
  * @FilePath: \orderfood\src\views\MerchantOrderMgr\merchantIMgr\dialog\orderDetail.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -336,25 +336,28 @@ export default {
 
         &-list {
             padding: 0 8px;
-
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px dashed;
             span {
                 line-height: 25px;
-                // float: left;
+                float: left;
                 display: inline-block;
             }
 
             &-title {
-                width: 90px;
+                width: 74px;
                 text-align: left;
             }
 
             &-price {
-                width: 70px;
-                text-align: left;
+                width: 64px;
+                text-align: center;
             }
 
             &-total {
-                width: 30px;
+                // width: 30px;
                 text-align: left;
             }
         }
