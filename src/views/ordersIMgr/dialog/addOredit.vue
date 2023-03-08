@@ -2,7 +2,7 @@
  * @Author: wangcc 1053578651@qq.com
  * @Date: 2023-01-15 17:23:29
  * @LastEditors: wcc 9316202+wccvidor@user.noreply.gitee.com
- * @LastEditTime: 2023-03-08 21:24:14
+ * @LastEditTime: 2023-03-09 00:33:00
  * @FilePath: \orderfood\src\views\ordersIMgr\dialog\addOredit.vue
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -12,11 +12,11 @@
             :before-close="handleClose">
             <el-form :model="saveForm" ref="ruleForm" :rules="rules" label-width="100px">
                 <!-- <el-form-item label="选择店铺" prop="shopId">
-                                            <el-select v-model="saveForm.shopId" style="width:100%" placeholder="请选择店铺" @change="handleChange">
-                                                <el-option v-for="item in shopList" :key="item.id" :label="item.name" :value="item.id">
-                                                </el-option>
-                                            </el-select>
-                                        </el-form-item> -->
+                                                <el-select v-model="saveForm.shopId" style="width:100%" placeholder="请选择店铺" @change="handleChange">
+                                                    <el-option v-for="item in shopList" :key="item.id" :label="item.name" :value="item.id">
+                                                    </el-option>
+                                                </el-select>
+                                            </el-form-item> -->
                 <el-form-item label="选择桌位" prop="tableId">
                     <el-select v-model="saveForm.tableId" style="width:100%" placeholder="请选择桌位">
                         <el-option v-for="item in desktopList" :key="item.id" :label="item.name" :value="item.id">
@@ -39,6 +39,9 @@
                         <el-table-column prop="num" label="菜品数量">
                         </el-table-column>
                         <el-table-column prop="aumtPrice" label="小计价格">
+                            <template slot-scope="{row}">
+                                <span>{{ row.aumtPrice | numFilter }}</span>
+                            </template>
                         </el-table-column>
                         <el-table-column label="操作">
                             <template slot-scope="{ row,$index }">
@@ -51,11 +54,11 @@
                     <el-input disabled v-model="saveForm.price"></el-input>
                 </el-form-item>
                 <!-- <el-form-item label="优惠金额" prop="discountAmount">
-                                                        <el-radio-group v-model="saveForm.discountAmount" size="small">
-                                                            <el-radio :label="item.value" border v-for="(item, index) in dict.type.preferential_type"
-                                                                :key="index">{{ item.label }}</el-radio>
-                                                        </el-radio-group>
-                                                    </el-form-item> -->
+                                                            <el-radio-group v-model="saveForm.discountAmount" size="small">
+                                                                <el-radio :label="item.value" border v-for="(item, index) in dict.type.preferential_type"
+                                                                    :key="index">{{ item.label }}</el-radio>
+                                                            </el-radio-group>
+                                                        </el-form-item> -->
                 <el-form-item label="是否结算" prop="status">
                     <el-radio-group v-model="saveForm.status" size="small">
                         <el-radio :label="item.value" border v-for="(item, index) in dict.type.order_status" :key="index">{{
@@ -76,16 +79,16 @@
                 <el-button @click="handleClose">取 消</el-button>
                 <el-button type="primary" @click="subMitAdd">确 定</el-button>
             </span>
-            <el-dialog :close-on-click-modal="false" width="40%" v-dialog-drag title="选择菜单" :modal="false"
-                modal-append-to-body :visible.sync="choiceType">
+        <el-dialog :close-on-click-modal="false" width="40%" v-dialog-drag title="选择菜单" :modal="false"
+            modal-append-to-body :visible.sync="choiceType">
                 <el-table ref="multipleTable" v-loading="loading" element-loading-text="拼命加载中"
                     element-loading-spinner="el-icon-loading" :data="menuList" style="width: 100%" height="500"
                     @selection-change="selectionChange">
                     <el-table-column type="selection" width="55"></el-table-column>
                     <el-table-column v-for="(item, index) in tableColumn" :key="index" :prop="item.key" :label="item.label">
                         <!-- <template v-if="item.id == 1" slot="header">
-                            <el-input v-model="search" size="mini" placeholder="输入菜品名搜索" />
-                        </template> -->
+                                <el-input v-model="search" size="mini" placeholder="输入菜品名搜索" />
+                            </template> -->
                         <template slot-scope="{ row }">
                             <div v-if="item.type === 'input'">
                             <el-input v-model="row.num" type="number" placeholder="请输入"></el-input>
@@ -96,9 +99,9 @@
                 </el-table>
                 <!--   分页   -->
                 <!-- <div class="pagination-box" v-if="total > 0">
-                            <pagination :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
-                                @pagination="getMenuList" />
-                        </div> -->
+                                <pagination :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
+                                    @pagination="getMenuList" />
+                            </div> -->
                 <div slot="footer" class="dialog-footer">
                     <el-button @click="choiceType = false">关 闭</el-button>
                     <el-button @click="goodsSub" type="primary">确 定</el-button>
@@ -150,7 +153,7 @@ export default {
                     type: 'input'
                 },
             ],
-            search:'',
+            search: '',
             choiceTypeData: [],
             moneyCont: [],
             total: 0,
@@ -164,6 +167,13 @@ export default {
         this.getList()
     },
     mounted() {
+    },
+    filters: {
+        numFilter(value) {
+            // 截取当前数据到小数点后两位
+            let realVal = parseFloat(value).toFixed(2)
+            return realVal
+        }
     },
     methods: {
         openVisible(data) {
@@ -289,7 +299,6 @@ export default {
         // 增加菜单
         addMenuList() {
             this.search = ''
-           
             this.choiceType = true;
             this.arrayMenuList = []
             if (this.choiceTypeData.length > 0) {
@@ -315,7 +324,7 @@ export default {
         sumArr(arr) {
             var num = 0
             arr.forEach(item => {
-                num += item.aumtPrice
+                num += Number(item.aumtPrice.toFixed(2))
             })
             return num;
         },
